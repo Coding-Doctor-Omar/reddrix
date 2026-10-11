@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
 
 
-**Using Reddrix as a standalone Reddit http client for your custom scraping setup (you'll need to use your own concurrency Semaphores here):**
+**Using Reddrix as a standalone Reddit http client for your custom scraping setup (random jitter between requests does not apply when using the get method directly, so you'll need to use your own logic here, or use the preset scraping setup shown above):**
 
 ```python
 from reddrix import Reddrix
