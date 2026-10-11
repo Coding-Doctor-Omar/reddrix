@@ -1,5 +1,5 @@
 <p align="center">
-    <img src="https://raw.githubusercontent.com/Coding-Doctor-Omar/reddrix/main/images/reddrix.png" width="350" alt="reddrix logo">
+    <img src="./images/reddrix.png" width="350" alt="reddrix logo">
 </p>
 
 <p align="center">
