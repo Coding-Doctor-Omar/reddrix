@@ -96,7 +96,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-**Scraping Posts and Comments Based on Keywords:**
+**Scraping Posts and Comments Based on Keywords (uses Reddit's current shreddit search engine):**
 
 ```python
 from reddrix import Reddrix
@@ -144,7 +144,7 @@ if __name__ == "__main__":
 
 
 
-**Using Reddrix as a standalone Reddit http client for your custom scraping setup:**
+**Using Reddrix as a standalone Reddit http client for your custom scraping setup (you'll need to use your own concurrency Semaphores here):**
 
 ```python
 from reddrix import Reddrix
@@ -328,7 +328,7 @@ If you use the preset scraping setup from `reddrix.get_items()`, the output data
 6. `time_frame` (string) &mdash; One of `all_time`, `past_hour`, `today`, `past_week`, `past_month`, and `past_year`. Used in `standard` mode for subreddits and profiles, and ignored in `keyword_search` and `domain_search` modes. Default is `all_time`.
 7. `subreddit_urls` (list of strings) &mdash; Subreddit URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping"]`. Used in `standard` mode only. URLs that are not valid subreddit URLs are skipped. Default is `[]`.
 8. `post_urls` (list of strings) &mdash; Specific post URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping/comments/abc123/post_title/"]`. Used in `standard` mode only. URLs that are not valid post URLs are skipped. Default is `[]`.
-9. `profile_urls` (list of strings) &mdash; User profile URLs to scrape the submitted posts of, e.g. `["https://www.reddit.com/user/username"]`. Both `/user/` and `/u/` URLs are supported. Used in `standard` mode only. URLs that are not valid profile URLs are skipped. Default is `[]`.
+9. `profile_urls` (list of strings) &mdash; User profile URLs to scrape the submitted posts of, e.g. `["https://www.reddit.com/user/username"]`. Both `/user/` and `/u/` URLs are supported. Used in `standard` mode only. URLs that are not valid profile URLs, or those of profiles that are deleted, banned, or hiding their content, are skipped. Default is `[]`.
 10. `domains` (list of strings) &mdash; Domains to search for in Reddit posts that link to them, e.g. `["github.com", "apify.com"]`. Used in `domain_search` mode only. Default is `[]`.
 11. `query` (string) &mdash; The search keywords to look up site-wide on Reddit. Used in `keyword_search` mode only. Default is `None`.
 12. `include_comments` (boolean) &mdash; Whether to scrape the comments of each post in addition to the post itself. Comments are returned as separate items with `submissionType` set to `comment`. Default is `False`.
