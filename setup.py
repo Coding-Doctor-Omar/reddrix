@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-with open("README.md", mode="r") as f:
+with open("README.md", mode="r", encoding="utf-8") as f:
     description = f.read()
 
 setup(
     name="reddrix",
-    version="0.1.0",
+    version="0.1.1",
     packages=find_packages(),
     install_requires=["camoufox[geoip]", "whiskeysour", "curl-cffi"],
     entry_points={
