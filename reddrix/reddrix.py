@@ -46,7 +46,7 @@ def auto_retry(max_attempts: int):
                 current_time = time.time()
                 try:
                     result = await func(*args, **kwargs)
-                except AntiBotBlockError:
+                except (AntiBotBlockError, SessionClosed, TargetClosedError):
                     if attempt == max_attempts:
                         if url:
                             raise FatalAntiBotBlockError(f"Error fetching URL: {url}\n\nError Message: Cookies expired, and attempts have been exhausted.")
