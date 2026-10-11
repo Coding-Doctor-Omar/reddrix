@@ -1,6 +1,7 @@
 from playwright.async_api import Browser, BrowserContext, Page, TimeoutError as PlaywrightTimeoutError, Error
 from curl_cffi.requests.exceptions import SessionClosed, HTTPError, JSONDecodeError
 from .exceptions import AntiBotBlockError, FatalAntiBotBlockError
+from orjson import JSONDecodeError as orjsonJSONDecodeError
 from playwright._impl._errors import TargetClosedError
 from camoufox.exceptions import UnknownIPLocation
 from camoufox.async_api import AsyncCamoufox
@@ -112,6 +113,7 @@ class Reddrix:
         self.started = False
         self.cookie_renewal_in_progress = False
         self.cookies_last_accessed_at = 0.0
+        self.page_semaphore = asyncio.Semaphore(10)
         self.request_semaphore = asyncio.Semaphore(10)
         self.items_queue = asyncio.Queue(maxsize=1000)
     
@@ -468,51 +470,52 @@ class Reddrix:
     
     @auto_retry(max_attempts=3)
     async def get(self, url: str, params: dict={}, expected_data_type: Literal["JSON", "HTML/XML"]="JSON") -> dict | list | str:
-        if params:
-            url += f"{'?' if '?' not in url else ''}{urlencode(params) if '?' not in url else f'&{urlencode(params)}'}"
-        
-        while self.cookie_renewal_in_progress:
-            await asyncio.sleep(0.07)
-        
-        if self.http_client == "camoufox":
-            try:
-                if expected_data_type == "JSON":
-                    data: list | dict = await self.page.evaluate(r"async (url) => {const res = await fetch(url); return await res.json();}", url)
-                else:
-                    data: str = await self.page.evaluate(r"async (url) => {const res = await fetch(url); return await res.text();}", url)
-                
-                if isinstance(data, dict) and data.get("error", 200) in [403, 404] and ("/user/" in url or "/u/" in url) and "/comments/" not in url:
-                    return {} if expected_data_type == "JSON" else ""
-                elif isinstance(data, dict) and data.get("error", 200) >= 400:
+        async with self.request_semaphore:
+            if params:
+                url += f"{'?' if '?' not in url else ''}{urlencode(params) if '?' not in url else f'&{urlencode(params)}'}"
+            
+            while self.cookie_renewal_in_progress:
+                await asyncio.sleep(0.07)
+            
+            if self.http_client == "camoufox":
+                try:
+                    if expected_data_type == "JSON":
+                        data: list | dict = await self.page.evaluate(r"async (url) => {const res = await fetch(url); return await res.json();}", url)
+                    else:
+                        data: str = await self.page.evaluate(r"async (url) => {const res = await fetch(url); return await res.text();}", url)
+                    
+                    if isinstance(data, dict) and data.get("error", 200) in [403, 404] and ("/user/" in url or "/u/" in url) and "/comments/" not in url:
+                        return {} if expected_data_type == "JSON" else ""
+                    elif isinstance(data, dict) and data.get("error", 200) >= 400:
+                        raise AntiBotBlockError
+                except Error:
                     raise AntiBotBlockError
-            except Error:
-                raise AntiBotBlockError
-            except AttributeError:
-                data = {} if expected_data_type == "JSON" else ""
-                pass
-        else:
-            try:
-                res = await self.session.get(url)
-                res.raise_for_status()
-                
-                if expected_data_type == "JSON":
-                    data: list | dict = res.json()
-                else:
-                    data: str = res.text       
-            except HTTPError:
-                if "/user/" in url or "/u/" in url:
-                    return {} if expected_data_type == "JSON" else ""
-                else:
+                except AttributeError:
+                    data = {} if expected_data_type == "JSON" else ""
+                    pass
+            else:
+                try:
+                    res = await self.session.get(url)
+                    res.raise_for_status()
+                    
+                    if expected_data_type == "JSON":
+                        data: list | dict = res.json()
+                    else:
+                        data: str = res.text       
+                except HTTPError:
+                    if "/user/" in url or "/u/" in url:
+                        return {} if expected_data_type == "JSON" else ""
+                    else:
+                        raise AntiBotBlockError
+                except (JSONDecodeError, orjsonJSONDecodeError):
                     raise AntiBotBlockError
-            except JSONDecodeError:
-                raise AntiBotBlockError
         
         return data
 
     @auto_retry(max_attempts=3)
     async def fetch_children_batch(self, post_id: str, id_batch: list) -> tuple[list[dict]]:
         api_url = f"https://www.reddit.com/api/morechildren.json?api_type=json&link_id={post_id}&children={','.join(id_batch)}"
-        async with self.request_semaphore:
+        async with self.page_semaphore:
             await asyncio.sleep(random.uniform(0.5, 4)) # Random jitter
             page_data = await self.get(api_url)
             if page_data["json"]["errors"]:
@@ -570,7 +573,7 @@ class Reddrix:
         fetched_top_comments_count = 0
         more = []
 
-        async with self.request_semaphore:
+        async with self.page_semaphore:
             await asyncio.sleep(random.uniform(0.5, 4)) # Random jitter
             page_data = await self.get(url)
 
@@ -610,7 +613,7 @@ class Reddrix:
         post_tasks = []
         if self.mode != "keyword_search":
             while True:
-                async with self.request_semaphore:
+                async with self.page_semaphore:
                     await asyncio.sleep(random.uniform(0.5, 4)) # Random jitter
                     page_data = await self.get(url, params={"after": after})
 
@@ -641,7 +644,7 @@ class Reddrix:
                 await asyncio.gather(*post_tasks)
         else:
             while True:
-                async with self.request_semaphore:
+                async with self.page_semaphore:
                     await asyncio.sleep(random.uniform(0.5, 4)) # Random jitter
                     page_html: str = await self.get(url if not next_page_url else next_page_url, expected_data_type="HTML/XML")
 
