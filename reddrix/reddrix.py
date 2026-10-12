@@ -55,7 +55,7 @@ def auto_retry(max_attempts: int):
                             raise FatalAntiBotBlockError(f"Error executing function: {func.__name__}\n\nError Message: Cookies expired, and attempts have been exhausted.")
 
                     async with COOKIE_LOCK:
-                        if current_time - scraper.cookies_last_renewed_at >= 15:
+                        if current_time - scraper.cookies_last_renewed_at >= 15: # Must match the wait selector timeout.
                             await scraper.refresh_cookies()
 
                     await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
