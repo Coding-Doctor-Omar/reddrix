@@ -4,3 +4,4 @@ reddrix/__pycache__/
 .venv/
 *.egg-info/
 test.py
+PYPI_README.md
