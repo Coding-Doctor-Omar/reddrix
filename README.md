@@ -13,7 +13,9 @@
 <p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
 
 <p align="center" id="badges">
-    <img src="https://img.shields.io/pypi/v/reddrix.svg" alt="pypi package logo">
+    <a href="https://pypi.org/project/reddrix/?kill_cache=1">
+        <img src="https://img.shields.io/pypi/v/reddrix.svg?kill_cache=1" alt="pypi package logo">
+    </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
     </a>
