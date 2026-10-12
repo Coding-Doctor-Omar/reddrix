@@ -3,7 +3,7 @@ import argparse
 
 
 def install_binary():
-    CamoufoxFetcher().install(replace=True)
+    CamoufoxFetcher().install()
 
 def main():
     parser = argparse.ArgumentParser(prog="reddrix", description="Reddrix --- all-in-one Reddit scraper")
