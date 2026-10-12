@@ -13,11 +13,9 @@
 <p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
 
 <p align="center" id="badges">
+    <img src="https://img.shields.io/pypi/v/reddrix.svg" alt="pypi package logo">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/pypi/v/reddrix.svg" alt="pypi package logo">
-    </a>
-    <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
     </a>
     <img src="https://img.shields.io/badge/license-MIT-green.svg" alt="license">
     <a href="https://github.com/Coding-Doctor-Omar/reddrix/stargazers">
@@ -31,7 +29,7 @@
 
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quick-start">Quick Start</a> • <a href="#output-dataset">Output Dataset</a> • 
-    <a href="#features">Features</a> • <a href="#scraper-options">Scraper Options</a>
+    <a href="#features">Features</a> • <a href="#scraper-arguments-options">Scraper Arguments Options</a>
 </p>
 
 ## Installation
@@ -318,7 +316,7 @@ If you use the preset scraping setup from `reddrix.get_items()`, the output data
 - 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
 - 🐍 **Pythonic API:** Manage scraper resources with an async context manager or explicit `start()` and `stop()` methods.
 
-## Scraper Options
+## Scraper Arguments Options
 
 1. `mode` (string) &mdash; One of `standard`, `keyword_search`, and `domain_search`. Default is `standard`.
 2. `http_client` (string) &mdash; One of `curl_cffi` and `camoufox`. Default is `curl_cffi`.
