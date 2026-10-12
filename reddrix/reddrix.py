@@ -123,11 +123,11 @@ class Reddrix:
     async def stop(self):
         await self.__aexit__(None, None, None)
     
-    def new_proxy_url(self) -> str | None:
+    def new_proxy_url(self) -> str:
         if not self.proxies:
-            return None
+            return ""
         
-        proxy_to_be_used = None
+        proxy_to_be_used = ""
         for proxy in self.proxies:
             if proxy not in self.used_proxies:
                 self.used_proxies.add(proxy)
