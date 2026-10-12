@@ -5,3 +5,7 @@
 ## v0.1.5 (Oct. 12, 2026)
 
 1. Fix TypeError that occurred when using `camoufox` as the `http_client` argument for `Reddrix` without proxies.
+
+## v0.1.6 (Oct. 12, 2026)
+
+1. Change the `reddrix install` CLI command to only install Camoufox if the latest version is not already installed.
