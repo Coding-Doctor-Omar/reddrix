@@ -62,6 +62,7 @@ async def main():
         verbose=True
     ) as reddrix:
         async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
             print(item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
@@ -88,6 +89,7 @@ async def main():
     await reddrix.start()
     
     async for item in reddrix.get_items():
+        # item is a Python dictionary with more than 30 keys.
         print(item["submissionType"], item["submissionUrl"])
     
     await reddrix.stop()
@@ -114,6 +116,7 @@ async def main():
         verbose=True
     ) as reddrix:
         async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
             print(item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
@@ -137,6 +140,7 @@ async def main():
         verbose=True
     ) as reddrix:
         async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
             print(item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
@@ -196,7 +200,7 @@ This option is included in anticipation of future aggressive anti-scraping measu
 
 ## Output Dataset
 
-If you use the preset scraping setup from `reddrix.get_items()`, the output dataset is a Python dictionary.
+If you use the preset scraping setup from `async for item reddrix.get_items()`, each `item` is a Python dictionary with more than 30 keys.
 
 **Example Reddit Post Output:**
 
