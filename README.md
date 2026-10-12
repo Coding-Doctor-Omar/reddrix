@@ -37,7 +37,7 @@
 ## Installation
 
 ```bash
-pip install reddrix
+pip install -U reddrix
 
 reddrix install # Optional for installing Camoufox if you want to use Reddrix with Camoufox
 ```
@@ -165,7 +165,7 @@ if __name__ == "__main__":
 **Using Reddrix with Camoufox:**
 
 ```bash
-pip install reddrix
+pip install -U reddrix
 reddrix install # Installs the camoufox browser
 ```
 
