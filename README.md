@@ -14,7 +14,7 @@
 
 <p align="center" id="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/pypi/v/reddrix.svg?kill_cache=0" alt="pypi package logo">
+        <img src="https://img.shields.io/pypi/v/reddrix.svg?no_cache=1" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
