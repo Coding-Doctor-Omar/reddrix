@@ -12,7 +12,7 @@
 
 <p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
 
-<p align="center" id="badges">
+<p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/pypi-v0.1.6-orange.svg" alt="pypi package logo">
     </a>
@@ -23,6 +23,7 @@
     <a href="https://github.com/Coding-Doctor-Omar/reddrix/stargazers">
         <img src="https://img.shields.io/github/stars/Coding-Doctor-Omar/reddrix?style=flat">
     </a>
+    <img src="https://img.shields.io/github/last-commit/Coding-Doctor-Omar/reddrix" alt="last commit badge">
 </p>
 
 > If this repo is useful to you or saved your time, consider starring ⭐ it to support me and help other find it and have an easier time scraping Reddit ❤️.
