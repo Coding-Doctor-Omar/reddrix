@@ -19,7 +19,7 @@ import time
 
 
 COOKIE_URL = "https://www.reddit.com/r/kasralainy" # Lightweight sub page to reduce network bandwidth if using a proxy.
-LOGIN_BTN_SELECTOR = "#login-button" # Used as a success signal for session cookies.
+LOGIN_BTN_SELECTOR = "#login-button" # Used as a success signal for session cookies (camoufox only).
 MAX_RETRIES = 5
 PLATFORMS = {
     "windows": "windows",
@@ -55,7 +55,7 @@ def auto_retry(max_attempts: int):
                             raise FatalAntiBotBlockError(f"Error executing function: {func.__name__}\n\nError Message: Cookies expired, and attempts have been exhausted.")
 
                     async with COOKIE_LOCK:
-                        if current_time - scraper.cookies_last_renewed_at >= 8:
+                        if current_time - scraper.cookies_last_renewed_at >= 15:
                             await scraper.refresh_cookies()
 
                     await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
