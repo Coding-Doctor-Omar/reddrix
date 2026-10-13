@@ -56,19 +56,11 @@ async def main():
         mode="standard",
         subreddit_urls=[
             "https://www.reddit.com/r/webscraping",
-            # Specific subreddits to include when scraping posts and comments
+            # URLs of specific subreddits to include when scraping posts and comments
             # Add as many as you want
         ],
-        profile_urls=[
-            "https://www.reddit.com/user/Coding-Doctor-Omar",
-            # Specific profiles to include when scraping posts and comments
-            # Add as many as you want. Only the posts and comments of profiles with public content will be scraped.
-        ],
-        post_urls=[
-            "https://www.reddit.com/r/webscraping/comments/1x369e0/opensource_reddit_scraper_for_posts_and_comments/",
-            # Specific posts to include in the scraping
-            # Add as many as you want
-        ],
+        profile_urls=[], # URLs of specific profiles to include when scraping posts and comments; add as many as you want
+        post_urls=[], # URLs of specific posts to include in the scraping; add as many as you like
         sort="new",
         include_comments=True,
         max_results=500,
