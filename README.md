@@ -236,7 +236,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
   "thumbnailUrl": None,
   "videoUrl": None,
   "imageUrl": "https://i.redd.it/cjhezz5bs9mh1.jpeg",
-  "galleryImagesUrls": None
+  "galleryImagesUrls": []
 }
 ```
 
@@ -274,7 +274,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
   "thumbnailUrl": None,
   "videoUrl": None,
   "imageUrl": None,
-  "galleryImagesUrls": None
+  "galleryImagesUrls": []
 }
 ```
 **Output Fields Explanation:**
