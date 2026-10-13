@@ -342,3 +342,13 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 15. `max_top_comments_per_post` (integer) &mdash; The maximum number of top-level comments (depth `0`) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
 16. `proxies` (list of strings) &mdash; A list of proxy URLs in the format `scheme://user:pass@hostname:port`. Reddrix rotates through them automatically, picking an unused proxy first and reusing proxies only after the whole list has been used. Default is `[]` (no proxy).
 17. `verbose` (boolean) &mdash; Whether to print timestamped log messages (initialization, retries, etc.) to the console. Default is `False`.
+
+## Star History
+
+<a href="https://www.star-history.com/?repos=Coding-Doctor-Omar%2Freddrix&type=date&legend=top-left">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=Coding-Doctor-Omar/reddrix&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=Coding-Doctor-Omar/reddrix&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=Coding-Doctor-Omar/reddrix&type=date&legend=top-left" />
+ </picture>
+</a>
