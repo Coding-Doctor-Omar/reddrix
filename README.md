@@ -59,7 +59,7 @@ async def main():
             # URLs of specific subreddits to include when scraping posts and comments
             # Add as many as you want
         ],
-        profile_urls=[], # URLs of specific profiles to include when scraping posts and comments; add as many as you want
+        profile_urls=[], # URLs of specific profiles to include when scraping posts and comments; add as many as you want. Only public data is scraped
         post_urls=[], # URLs of specific posts to include in the scraping; add as many as you like
         sort="new",
         include_comments=True,
