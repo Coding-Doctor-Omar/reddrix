@@ -32,7 +32,7 @@
 
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quick-start">Quick Start</a> • <a href="#features">Features</a> • 
-    <a href="#output-dataset">Output Dataset</a> • <a href="#scraper-arguments-options">Scraper Arguments Options</a>
+    <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
 </p>
 
 ## Installation
@@ -54,7 +54,21 @@ import asyncio
 async def main():
     async with Reddrix(
         mode="standard",
-        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        subreddit_urls=[
+            "https://www.reddit.com/r/webscraping",
+            # Specific subreddits to include when scraping posts and comments
+            # Add as many as you want
+        ],
+        profile_urls=[
+            "https://www.reddit.com/user/Coding-Doctor-Omar",
+            # Specific profiles to include when scraping posts and comments
+            # Add as many as you want. Only the posts and comments of profiles with public content will be scraped.
+        ],
+        post_urls=[
+            "https://www.reddit.com/r/webscraping/comments/1x369e0/opensource_reddit_scraper_for_posts_and_comments/",
+            # Specific posts to include in the scraping
+            # Add as many as you want
+        ],
         sort="new",
         include_comments=True,
         max_results=500,
@@ -83,7 +97,6 @@ async def main():
         include_comments=True,
         max_results=500,
         max_posts_per_collection=500,
-        proxies=["http://user:pass@hostname:port", "http://user2:pass2@hostname2:port2"], # Built-in automatic proxy rotation
         verbose=True
     )
     await reddrix.start()
@@ -190,6 +203,7 @@ async def main():
         verbose=True
     ) as reddrix:
         async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
             print(item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
@@ -197,6 +211,29 @@ if __name__ == "__main__":
 ```
 
 This option is included in anticipation of future aggressive anti-scraping measures from Reddit. Even when Camoufox is used as the http client, the scraper uses it intelligently. It still utilizes the same JSON endpoints that curl_cffi uses via `page.evaluate()` with JS fetch. This results in nearly the same scraping speed, but with more stealth. The only caveat is more resource usage and slower scraper initialization speed.
+
+**Using Reddrix with Proxies:**
+
+```python
+from reddrix import Reddrix
+import asyncio
+
+async def main():
+    async with Reddrix(
+        # Your normal arguments above ...,
+        proxies=[
+            "http://user:pass@hostname:port",
+            "http://user2:pass2@hostname2:port2",
+            # Add as many as you want, and Reddrix automatically rotates between them...
+        ]
+    ) as reddrix:
+        async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
+            print(item["submissionType"], item["submissionUrl"])
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
 
 ## Features
 
@@ -323,7 +360,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 30. `imageUrl` &mdash; [`string`, `None`] The URL for the image in a post (always `None` for any submission other than `image` posts).
 31. `galleryImagesUrls` &mdash; [`list`] A list of URLs for all images in a gallery (always empty for any submission other than `gallery` posts).
 
-## Scraper Arguments Options
+## Reddrix Arguments Options
 
 1. `mode` (string) &mdash; One of `standard`, `keyword_search`, and `domain_search`. Default is `standard`.
 2. `http_client` (string) &mdash; One of `curl_cffi` and `camoufox`. Default is `curl_cffi`.
