@@ -31,8 +31,8 @@
 > Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
 <p align="center">
-    <a href="#installation">Installation</a> • <a href="#quick-start">Quick Start</a> • <a href="#output-dataset">Output Dataset</a> • 
-    <a href="#features">Features</a> • <a href="#scraper-arguments-options">Scraper Arguments Options</a>
+    <a href="#installation">Installation</a> • <a href="#quick-start">Quick Start</a> • <a href="#features">Features</a> • 
+    <a href="#output-dataset">Output Dataset</a> • <a href="#scraper-arguments-options">Scraper Arguments Options</a>
 </p>
 
 ## Installation
@@ -198,6 +198,18 @@ if __name__ == "__main__":
 
 This option is included in anticipation of future aggressive anti-scraping measures from Reddit. Even when Camoufox is used as the http client, the scraper uses it intelligently. It still utilizes the same JSON endpoints that curl_cffi uses via `page.evaluate()` with JS fetch. This results in nearly the same scraping speed, but with more stealth. The only caveat is more resource usage and slower scraper initialization speed.
 
+## Features
+
+- 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
+- 🔑 **No API Key Required:** Scrape Reddit without requiring an API key.
+- 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords and domains.
+- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 30+ structured fields, including authors, scores, timestamps, flairs, media URLs, and comment thread metadata.
+- 🌐 **Flexible HTTP Clients:** Choose between `curl_cffi` for lightweight HTTP requests and `camoufox` for intelligent, browser-based fetching.
+- 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, and configurable proxies.
+- ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
+- 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
+- 🐍 **Pythonic API:** Manage scraper resources with an async context manager or explicit `start()` and `stop()` methods.
+
 ## Output Dataset
 
 If you use the preset scraping setup from `async for item reddrix.get_items()`, each `item` is a Python dictionary with more than 30 keys.
@@ -310,18 +322,6 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 29. `videoUrl` &mdash; [`string`, `None`] The URL for the video in a post (always `None` for any submission other than `video` posts).
 30. `imageUrl` &mdash; [`string`, `None`] The URL for the image in a post (always `None` for any submission other than `image` posts).
 31. `galleryImagesUrls` &mdash; [`list`] A list of URLs for all images in a gallery (always empty for any submission other than `gallery` posts).
-
-## Features
-
-- 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
-- 🔑 **No API Key Required:** Scrape Reddit without requiring an API key.
-- 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords and domains.
-- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 30+ structured fields, including authors, scores, timestamps, flairs, media URLs, and comment thread metadata.
-- 🌐 **Flexible HTTP Clients:** Choose between `curl_cffi` for lightweight HTTP requests and `camoufox` for intelligent, browser-based fetching.
-- 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, and configurable proxies.
-- ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
-- 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
-- 🐍 **Pythonic API:** Manage scraper resources with an async context manager or explicit `start()` and `stop()` methods.
 
 ## Scraper Arguments Options
 
