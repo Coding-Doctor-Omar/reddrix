@@ -214,8 +214,8 @@ async def main():
     async with Reddrix(
         # Your normal arguments above ...,
         proxies=[
-            "http://user:pass@hostname:port",
-            "http://user2:pass2@hostname2:port2",
+            "scheme://user:pass@hostname:port",
+            "scheme://user2:pass2@hostname2:port2",
             # Add as many as you want, and Reddrix automatically rotates between them...
         ]
     ) as reddrix:
