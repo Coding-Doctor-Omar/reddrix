@@ -23,6 +23,9 @@
     <a href="https://github.com/Coding-Doctor-Omar/reddrix/stargazers">
         <img src="https://img.shields.io/github/stars/Coding-Doctor-Omar/reddrix?style=flat">
     </a>
+    <a href="https://pypistats.org/packages/reddrix">
+        <img src="https://img.shields.io/pypi/dw/reddrix">
+    </a>
     <img src="https://img.shields.io/github/last-commit/Coding-Doctor-Omar/reddrix" alt="last commit badge">
 </p>
 
