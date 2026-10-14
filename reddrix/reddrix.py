@@ -167,7 +167,7 @@ class Reddrix:
                     await self.page.wait_for_selector(LOGIN_BTN_SELECTOR, timeout=15000)
                 else:
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
-                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.6"
+                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
                     res = await self.session.get("https://old.reddit.com/login")
                     res.raise_for_status()
                 
@@ -251,7 +251,7 @@ class Reddrix:
                     await self.page.wait_for_selector(LOGIN_BTN_SELECTOR, timeout=15000)
                 else:
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
-                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.6"
+                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
                     res = await self.session.get("https://old.reddit.com/login")
                     res.raise_for_status()
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, HTTPError, UnknownIPLocation):
