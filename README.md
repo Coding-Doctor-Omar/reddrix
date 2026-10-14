@@ -21,7 +21,7 @@
         <img src="https://img.shields.io/pypi/dw/reddrix">
     </a>
     <img src="https://img.shields.io/github/last-commit/Coding-Doctor-Omar/reddrix" alt="last commit badge">
-    <a href="https://ko-fi.com/yourusername" target="_blank" rel="noopener noreferrer">
+    <a href="https://ko-fi.com/CodingDoctorOmar" target="_blank" rel="noopener noreferrer">
         <img src="https://img.shields.io/badge/Ko--fi-Support%20me-ff5e5b?style=flat&logo=ko-fi" alt="Ko-Fi" />
     </a>
 </p>
