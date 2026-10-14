@@ -8,7 +8,7 @@
     </a>
 </p>
 
-# Reddrix &mdash; An open-source, blazing fast Reddit Scraper for Python (No API Key)
+# Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python (No API Key)
 
 <p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
 
@@ -31,7 +31,7 @@
 > Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
 <p align="center">
-    <a href="#installation">Installation</a> • <a href="#quick-start">Quick Start</a> • <a href="#features">Features</a> • 
+    <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
 </p>
 
@@ -43,7 +43,7 @@ pip install -U reddrix
 reddrix install # Optional for installing Camoufox if you want to use Reddrix with Camoufox
 ```
 
-## Quick start
+## Quickstart
 
 **Using Async Context Manager:**
 
