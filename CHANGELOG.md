@@ -1,3 +1,7 @@
+## v0.1.7 (Oct. 14, 2026)
+
+1. Allow CLI commands to be executed from outside a virtual environment and not just from inside via `python -m reddrix install` (Windows) or `python3 -m reddrix install` (Linux/MacOS).
+
 ## v0.1.6 (Oct. 12, 2026)
 
 1. Change the `reddrix install` CLI command to only install Camoufox if the latest version is not already installed.
