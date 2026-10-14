@@ -26,7 +26,7 @@
     </a>
 </p>
 
-> If this repo is useful to you or saved your time, consider starring ⭐ it to support me and help other find it and have an easier time scraping Reddit ❤️.
+> If this repo is useful to you or saved your time, consider starring ⭐ it to support me and help others find it and have an easier time scraping Reddit ❤️.
 
 > Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
