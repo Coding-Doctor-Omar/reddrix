@@ -2,12 +2,6 @@
     <img src="./images/reddrix.png" width="350" alt="reddrix logo">
 </p>
 
-<p align="center">
-    <a href="https://ko-fi.com/CodingDoctorOmar">
-        <img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support Me on Ko-fi">
-    </a>
-</p>
-
 # Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python (No API Key)
 
 <p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
@@ -27,6 +21,9 @@
         <img src="https://img.shields.io/pypi/dw/reddrix">
     </a>
     <img src="https://img.shields.io/github/last-commit/Coding-Doctor-Omar/reddrix" alt="last commit badge">
+    <a href="https://ko-fi.com/yourusername" target="_blank" rel="noopener noreferrer">
+        <img src="https://img.shields.io/badge/Ko--fi-Support%20me-ff5e5b?style=flat&logo=ko-fi" alt="Ko-Fi" />
+    </a>
 </p>
 
 > If this repo is useful to you or saved your time, consider starring ⭐ it to support me and help other find it and have an easier time scraping Reddit ❤️.
