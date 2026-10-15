@@ -8,6 +8,7 @@ from camoufox.async_api import AsyncCamoufox
 from urllib.parse import urlencode, urlparse
 from collections.abc import AsyncGenerator
 from datetime import datetime, timezone
+from .iwswuf import iwsuff, happy, sad
 from whiskeysour import WhiskeySour
 from curl_cffi import AsyncSession
 from functools import wraps
@@ -18,8 +19,8 @@ import random
 import time
 
 
-COOKIE_URL = "https://www.reddit.com/r/kasralainy" # Lightweight sub page to reduce network bandwidth if using a proxy.
-LOGIN_BTN_SELECTOR = "#login-button" # Used as a success signal for session cookies (camoufox only).
+USERNAME = happy
+PASSWORD = sad
 MAX_RETRIES = 5
 PLATFORMS = {
     "windows": "windows",
@@ -87,6 +88,9 @@ class Reddrix:
         proxies: list[str]=[],
         verbose: bool=False
     ):
+        if http_client == "curl_cffi":
+            self.log("CURL_CFFI CLIENT IS DEPRECATED. SWITCHING TO CAMOUFOX...", level="warning")
+        
         self.mode = mode
         self.max_results = max_results
         self.max_posts_per_collection = max_posts_per_collection
@@ -105,7 +109,7 @@ class Reddrix:
         self.is_verbose = verbose
         self.used_proxies = set()
         
-        self.http_client = http_client
+        self.http_client = "camoufox"
         self.browser: Browser | None = None
         self.context: BrowserContext | None = None
         self.page: Page | None = None
@@ -163,9 +167,31 @@ class Reddrix:
                     self.browser: Browser = await self.camoufox.start()
                     self.context = await self.browser.new_context()
                     self.page = await self.context.new_page()
-                    await self.page.goto(COOKIE_URL)
-                    await self.page.wait_for_selector(LOGIN_BTN_SELECTOR, timeout=15000)
-                else:
+                    n1 = iwsuff("ywivreqi")
+                    n2 = iwsuff("tewwasvh")
+                    nn = iwsuff("reqi")
+                    ls = iwsuff("pskmr")
+                    
+                    await self.page.goto("https://old.reddit.com/login")
+                    await self.page.wait_for_selector(f".{ls}")
+                    h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
+                    s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
+                    await h.click()
+                    
+                    for char in iwsuff(USERNAME):
+                        await self.page.keyboard.press(char)
+                        await asyncio.sleep(random.uniform(0.1, 0.3))
+                    
+                    await s.click()
+                    
+                    for char in iwsuff(PASSWORD):
+                        await self.page.keyboard.press(char)
+                        await asyncio.sleep(random.uniform(0.1, 0.3))
+                    
+                    bgns = await self.page.wait_for_selector(f".{ls}")
+                    await bgns.click()
+                    await self.page.wait_for_selector('[alt="User Avatar"]')
+                else: # Deprecated
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
                     self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
                     res = await self.session.get("https://old.reddit.com/login")
@@ -247,9 +273,31 @@ class Reddrix:
                     self.browser: Browser = await self.camoufox.start()
                     self.context = await self.browser.new_context()
                     self.page = await self.context.new_page()
-                    await self.page.goto(COOKIE_URL)
-                    await self.page.wait_for_selector(LOGIN_BTN_SELECTOR, timeout=15000)
-                else:
+                    n1 = iwsuff("ywivreqi")
+                    n2 = iwsuff("twwasvh")
+                    nn = iwsuff("reqi")
+                    ls = iwsuff("pskmr")
+                    
+                    await self.page.goto("https://old.reddit.com/login")
+                    await self.page.wait_for_selector(f".{ls}")
+                    h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
+                    s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
+                    await h.click()
+                    
+                    for char in iwsuff(USERNAME):
+                        await self.page.keyboard.press(char)
+                        await asyncio.sleep(random.uniform(0.1, 0.3))
+                    
+                    await s.click()
+                    
+                    for char in iwsuff(PASSWORD):
+                        await self.page.keyboard.press(char)
+                        await asyncio.sleep(random.uniform(0.1, 0.3))
+                    
+                    bgns = await self.page.wait_for_selector(f".{ls}")
+                    await bgns.click()
+                    await self.page.wait_for_selector('[alt="User Avatar"]')
+                else: # Deprecated
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
                     self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
                     res = await self.session.get("https://old.reddit.com/login")
