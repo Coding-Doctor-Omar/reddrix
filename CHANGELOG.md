@@ -1,3 +1,7 @@
+## v0.2.2 (Oct. 15, 2026)
+
+1. Prevent false errors from appearing at the end of runs.
+
 ## v0.2.1 (Oct. 15, 2026)
 
 1. Fix minor bug that caused `AttributeError` in scraper initialization.
