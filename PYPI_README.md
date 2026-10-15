@@ -14,7 +14,7 @@
 
 <p align="center" id="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v0.1.7-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v0.2.0-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -37,6 +37,14 @@
     <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
 </p>
+
+## Installation
+
+```bash
+pip install -U reddrix
+
+reddrix install # Mandatory for installing the Camoufox dependency.
+```
 
 ## Quickstart
 
@@ -167,38 +175,6 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-**Using Reddrix with Camoufox:**
-
-```bash
-pip install -U reddrix
-reddrix install # Installs the camoufox browser
-```
-
-```python
-from reddrix import Reddrix
-import asyncio
-
-async def main():
-    async with Reddrix(
-        mode="standard",
-        http_client="camoufox", # By default, the http_client is "curl_cffi", but you can choose Camoufox.
-        subreddit_urls=["https://www.reddit.com/r/webscraping"],
-        sort="new",
-        include_comments=True,
-        max_results=500,
-        max_posts_per_collection=500,
-        verbose=True
-    ) as reddrix:
-        async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 30 keys.
-            print(item["submissionType"], item["submissionUrl"])
-
-if __name__ == "__main__":
-    asyncio.run(main())
-```
-
-This option is included in anticipation of future aggressive anti-scraping measures from Reddit. Even when Camoufox is used as the http client, the scraper uses it intelligently. It still utilizes the same JSON endpoints that curl_cffi uses via `page.evaluate()` with JS fetch. This results in nearly the same scraping speed, but with more stealth. The only caveat is more resource usage and slower scraper initialization speed.
-
 **Using Reddrix with Proxies:**
 
 ```python
@@ -228,7 +204,7 @@ if __name__ == "__main__":
 - 🔑 **No API Key Required:** Scrape Reddit without requiring an API key.
 - 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords and domains.
 - 💬 **Comprehensive Data Extraction:** Collect posts and comments with 30+ structured fields, including authors, scores, timestamps, flairs, media URLs, and comment thread metadata.
-- 🌐 **Flexible HTTP Clients:** Choose between `curl_cffi` for lightweight HTTP requests and `camoufox` for intelligent, browser-based fetching.
+- 🌐 **Intelligent Scraping:** Even though Reddrix uses the Camoufox browser under the hood, it uses intelligent fetching via `page.evaluate()` with JS fetch to preserve the scraping speed (no navigation, no DOM parsing, no JS rendering, except for the occasional cookie refreshes). 
 - 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, and configurable proxies.
 - ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
 - 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
