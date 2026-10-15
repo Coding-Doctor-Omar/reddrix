@@ -1,3 +1,7 @@
+## v0.2.3 (Oct. 15, 2026)
+
+1. Update cookie refresh intervals and selector timeouts.
+
 ## v0.2.2 (Oct. 15, 2026)
 
 1. Prevent false errors from appearing at the end of runs.
