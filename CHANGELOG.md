@@ -1,3 +1,7 @@
+## v0.2.1 (Oct. 15, 2026)
+
+1. Fix minor bug that caused `AttributeError` in scraper initialization.
+
 ## v0.2.0 (Oct. 15, 2026)
 
 1. `curl_cffi` http client is deprecated. Only `camoufox` will be used now.
