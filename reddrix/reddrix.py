@@ -87,10 +87,7 @@ class Reddrix:
         max_top_comments_per_post: int=999999,
         proxies: list[str]=[],
         verbose: bool=False
-    ):
-        if http_client == "curl_cffi":
-            self.log("CURL_CFFI CLIENT IS DEPRECATED. SWITCHING TO CAMOUFOX...", level="warning")
-        
+    ):  
         self.mode = mode
         self.max_results = max_results
         self.max_posts_per_collection = max_posts_per_collection
@@ -120,6 +117,8 @@ class Reddrix:
         self.page_semaphore = asyncio.Semaphore(10)
         self.request_semaphore = asyncio.Semaphore(10)
         self.items_queue = asyncio.Queue(maxsize=1000)
+        if http_client == "curl_cffi":
+            self.log("CURL_CFFI CLIENT IS DEPRECATED. SWITCHING TO CAMOUFOX...", level="warning")
     
     async def start(self):
         return await self.__aenter__()
