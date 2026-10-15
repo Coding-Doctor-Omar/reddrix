@@ -276,7 +276,7 @@ class Reddrix:
                     self.context = await self.browser.new_context()
                     self.page = await self.context.new_page()
                     n1 = iwsuff("ywivreqi")
-                    n2 = iwsuff("twwasvh")
+                    n2 = iwsuff("tewwasvh")
                     nn = iwsuff("reqi")
                     ls = iwsuff("pskmr")
                     
