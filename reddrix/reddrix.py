@@ -156,6 +156,7 @@ class Reddrix:
                     self.camoufox = AsyncCamoufox(
                         os=PLATFORMS[system().lower()],
                         headless=True,
+                        humanize=True,
                         fingerprint_preset=True,
                         proxy={
                             "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
@@ -262,6 +263,7 @@ class Reddrix:
                     self.camoufox = AsyncCamoufox(
                         os=PLATFORMS[system().lower()],
                         headless=True,
+                        humanize=True,
                         fingerprint_preset=True,
                         proxy={
                             "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
