@@ -5,7 +5,7 @@ with open("PYPI_README.md", mode="r", encoding="utf-8") as f:
 
 setup(
     name="reddrix",
-    version="0.1.7",
+    version="0.2.0",
     packages=find_packages(),
     install_requires=["camoufox[geoip]", "whiskeysour", "curl-cffi"],
     entry_points={
@@ -13,5 +13,5 @@ setup(
     },
     long_description=description,
     long_description_content_type="text/markdown",
-    description="Reddrix is an open-source, blazing fast Reddit Scraper for Python (No API Key)"
+    description="Reddrix is an open-source, blazing-fast Reddit Scraper for Python (No API Key)"
 )
