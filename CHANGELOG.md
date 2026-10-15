@@ -1,3 +1,7 @@
+## v0.2.4 (Oct. 15, 2026)
+
+1. Fix typo in `Reddrix.refresh_cookies()`.
+
 ## v0.2.3 (Oct. 15, 2026)
 
 1. Update cookie refresh intervals and selector timeouts.
