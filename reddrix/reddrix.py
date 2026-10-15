@@ -56,7 +56,7 @@ def auto_retry(max_attempts: int):
                             raise FatalAntiBotBlockError(f"Error executing function: {func.__name__}\n\nError Message: Cookies expired, and attempts have been exhausted.")
 
                     async with COOKIE_LOCK:
-                        if current_time - scraper.cookies_last_accessed_at >= 15 and scraper.is_running: # Must match the wait selector timeout.
+                        if current_time - scraper.cookies_last_accessed_at >= 40 and scraper.is_running: # Must match the wait selector timeout.
                             await scraper.refresh_cookies()
 
                     await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
@@ -174,7 +174,7 @@ class Reddrix:
                     ls = iwsuff("pskmr")
                     
                     await self.page.goto("https://old.reddit.com/login")
-                    await self.page.wait_for_selector(f".{ls}")
+                    await self.page.wait_for_selector(f".{ls}", timeout=20000)
                     h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
                     s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
                     await h.click()
@@ -191,7 +191,7 @@ class Reddrix:
                     
                     bgns = await self.page.wait_for_selector(f".{ls}")
                     await bgns.click()
-                    await self.page.wait_for_selector('[alt="User Avatar"]')
+                    await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
                 else: # Deprecated
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
                     self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
@@ -281,7 +281,7 @@ class Reddrix:
                     ls = iwsuff("pskmr")
                     
                     await self.page.goto("https://old.reddit.com/login")
-                    await self.page.wait_for_selector(f".{ls}")
+                    await self.page.wait_for_selector(f".{ls}", timeout=20000)
                     h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
                     s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
                     await h.click()
@@ -298,7 +298,7 @@ class Reddrix:
                     
                     bgns = await self.page.wait_for_selector(f".{ls}")
                     await bgns.click()
-                    await self.page.wait_for_selector('[alt="User Avatar"]')
+                    await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
                 else: # Deprecated
                     self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
                     self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
