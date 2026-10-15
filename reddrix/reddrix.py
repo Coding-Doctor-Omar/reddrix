@@ -56,7 +56,7 @@ def auto_retry(max_attempts: int):
                             raise FatalAntiBotBlockError(f"Error executing function: {func.__name__}\n\nError Message: Cookies expired, and attempts have been exhausted.")
 
                     async with COOKIE_LOCK:
-                        if current_time - scraper.cookies_last_accessed_at >= 15: # Must match the wait selector timeout.
+                        if current_time - scraper.cookies_last_accessed_at >= 15 and scraper.is_running: # Must match the wait selector timeout.
                             await scraper.refresh_cookies()
 
                     await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
@@ -117,6 +117,7 @@ class Reddrix:
         self.page_semaphore = asyncio.Semaphore(10)
         self.request_semaphore = asyncio.Semaphore(10)
         self.items_queue = asyncio.Queue(maxsize=1000)
+        self.is_running = True
         if http_client == "curl_cffi":
             self.log("CURL_CFFI CLIENT IS DEPRECATED. SWITCHING TO CAMOUFOX...", level="warning")
     
@@ -821,4 +822,5 @@ class Reddrix:
                 else:
                     break
         finally:
+            self.is_running = False
             runner.cancel()
