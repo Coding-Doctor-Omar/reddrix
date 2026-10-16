@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v0.2.5-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v0.2.6-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -30,8 +30,8 @@
 
 > Need a hosted version? Check [Reddit Scraper](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
-> [!WARNING]
-> A few days after the launch of Reddrix, some people reported this scraper to Reddit. In response, Reddit tightened their anti-scraping measures further. As a result, using a `loid` cookie is no longer sufficient. A `reddit_session` cookie is now required for scraping. This cookie can only be obtained via a real login. Reddrix currently uses a disposable, perma-banned account for the scraping, but this can break at any moment. A future update of Reddrix will allow users to supply their own credentials.
+> [!NOTE]
+> A few days after the launch of Reddrix, some people reported this scraper to Reddit. In response, Reddit tightened their anti-scraping measures further. As a result, using a `loid` cookie is no longer sufficient. A `reddit_session` cookie is now required for scraping. This cookie can only be obtained via a real login. You can supply your own `REDDIT_USERNAME` and `REDDIT_PASSWORD` environment variables that the scraper will use for logging in.
 
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
@@ -42,8 +42,10 @@
 
 ```bash
 pip install -U reddrix
-
 reddrix install # Mandatory for installing the Camoufox dependency.
+
+export REDDIT_USERNAME="YOUR USERNAME"
+export REDDIT_PASSWORD="YOUR PASSWORD"
 ```
 
 ## Quickstart
@@ -201,7 +203,6 @@ if __name__ == "__main__":
 ## Features
 
 - 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
-- 🔑 **No API Key Required:** Scrape Reddit without requiring an API key.
 - 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords and domains.
 - 💬 **Comprehensive Data Extraction:** Collect posts and comments with 30+ structured fields, including authors, scores, timestamps, flairs, media URLs, and comment thread metadata.
 - 🌐 **Intelligent Scraping:** Even though Reddrix uses the Camoufox browser under the hood, it uses intelligent fetching via `page.evaluate()` with JS fetch to preserve the scraping speed (no navigation, no DOM parsing, no JS rendering, except for the occasional cookie refreshes). 
