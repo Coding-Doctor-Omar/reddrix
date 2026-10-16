@@ -1,3 +1,7 @@
+## v0.2.5 (Oct. 16, 2026)
+
+1. Fix pagination bug in keyword_search mode that caused the scraper to stop at 7 results.
+
 ## v0.2.4 (Oct. 15, 2026)
 
 1. Fix typo in `Reddrix.refresh_cookies()`.
