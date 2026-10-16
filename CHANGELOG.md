@@ -1,3 +1,12 @@
+## v0.2.7 (Oct. 16, 2026)
+
+1. Avoid using Camoufox fingerprint presets for more fingerprint variety.
+
+## v0.2.6 (Oct. 16, 2026)
+
+1. Allow users to supply custom Reddit credentials in env vars.
+2. Bring back the `curl_cffi` argument for the `http_client` parameter.
+
 ## v0.2.5 (Oct. 16, 2026)
 
 1. Fix pagination bug in `keyword_search` mode that caused the scraper to stop at 7 results.
