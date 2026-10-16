@@ -28,7 +28,7 @@
 
 > If this repo is useful to you or saved your time, consider starring ⭐ it to support me and help others find it and have an easier time scraping Reddit ❤️.
 
-> Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
+> Need a hosted version? Check [Reddit Scraper](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
 > [!WARNING]
 > A few days after the launch of Reddrix, some people reported this scraper to Reddit. In response, Reddit tightened their anti-scraping measures further. As a result, using a `loid` cookie is no longer sufficient. A `reddit_session` cookie is now required for scraping. This cookie can only be obtained via a real login. Reddrix currently uses a disposable, perma-banned account for the scraping, but this can break at any moment. A future update of Reddrix will allow users to supply their own credentials.
