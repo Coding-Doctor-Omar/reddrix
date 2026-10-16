@@ -2,9 +2,9 @@
     <img src="./images/reddrix.png" width="350" alt="reddrix logo">
 </p>
 
-# Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python.
+# Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python
 
-<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. No API key required. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
+<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics. Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords or domains. Collect rich, structured data including authors, scores, timestamps, flairs, comment threads, and more (30+ fields).</h3></p>
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
@@ -30,8 +30,8 @@
 
 > Need a hosted version? Check [Reddit Scraper](https://apify.com/coding-doctor-omar/Reddit-Scraper-Pro) on Apify.
 
-> [!NOTE]
-> A few days after the launch of Reddrix, some people reported this scraper to Reddit. In response, Reddit tightened their anti-scraping measures further. As a result, using a `loid` cookie is no longer sufficient. A `reddit_session` cookie is now required for scraping. This cookie can only be obtained via a real login. You can supply your own `REDDIT_USERNAME` and `REDDIT_PASSWORD` environment variables that the scraper will use for logging in.
+> [!WARNING]
+> A few days after the launch of Reddrix, some people reported this scraper to Reddit. In response, Reddit tightened their anti-scraping measures further. As a result, using a `loid` cookie from `old.reddit.com/login` or from an anonymous browser session is no longer sufficient, and Reddrix is no longer a no-login scraper. A `reddit_session` cookie is now required for scraping. This cookie can only be obtained via a real login. You can supply your own `REDDIT_USERNAME` and `REDDIT_PASSWORD` environment variables that the scraper will use for logging in. If you don't supply these environment variables, the scraper will fall back to scraping with a disposable Reddit account (may stop working any moment).
 
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
@@ -42,10 +42,12 @@
 
 ```bash
 pip install -U reddrix
-reddrix install # Mandatory for installing the Camoufox dependency.
+reddrix install # Mandatory for installing the Camoufox browser.
 
 export REDDIT_USERNAME="YOUR USERNAME"
 export REDDIT_PASSWORD="YOUR PASSWORD"
+
+# Falls back to a disposable Reddit account (not reliable) if you don't provide credentials.
 ```
 
 ## Quickstart
@@ -72,9 +74,11 @@ async def main():
         max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
+        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with more than 30 keys.
-            print(item["submissionType"], item["submissionUrl"])
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -98,9 +102,11 @@ async def main():
     )
     await reddrix.start()
     
+    scrape_count = 0
     async for item in reddrix.get_items():
         # item is a Python dictionary with more than 30 keys.
-        print(item["submissionType"], item["submissionUrl"])
+        scrape_count += 1
+        print(scrape_count, item["submissionType"], item["submissionUrl"])
     
     await reddrix.stop()
 
@@ -125,9 +131,11 @@ async def main():
         max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
+        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with more than 30 keys.
-            print(item["submissionType"], item["submissionUrl"])
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -149,10 +157,11 @@ async def main():
         max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
+        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with more than 30 keys.
-            print(item["submissionType"], item["submissionUrl"])
-
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
 if __name__ == "__main__":
     asyncio.run(main())
 ```
@@ -192,13 +201,45 @@ async def main():
             # Add as many as you want, and Reddrix automatically rotates between them...
         ]
     ) as reddrix:
+        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with more than 30 keys.
-            print(item["submissionType"], item["submissionUrl"])
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+**Using Reddrix with Camoufox:**
+
+```python
+from reddrix import Reddrix
+import asyncio
+
+async def main():
+    async with Reddrix(
+        mode="standard",
+        http_client="camoufox",
+        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        sort="new",
+        include_comments=True,
+        max_results=500,
+        max_posts_per_collection=500,
+        verbose=True
+    ) as reddrix:
+        scrape_count = 0
+        async for item in reddrix.get_items():
+            # item is a Python dictionary with more than 30 keys.
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+> [!NOTE]
+> By default, the `http_client` argument is set to `curl_cffi`. If the `http_client` argument is set to `camoufox`, Reddrix will make all GET HTTP requests using JavaScript fetch from within the same Camoufox browser context. This preserves most of the scraping speed while eliminating the fingerprint drift that happens when scrapers obtain cookies from a browser then use the cookies in another HTTP client like `curl_cffi` or `wreq`. The only caveat is higher resource usage. When the `http_client` is left as the default `curl_cffi`, Reddrix will login with the supplied account (or the fall back account) then will use the session cookie in a `curl_cffi` session impersonating a real browser (more lightweight but less stealthy due to fingerprint drift).
 
 ## Features
 
@@ -327,7 +368,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 ## Reddrix Arguments Options
 
 1. `mode` (string) &mdash; One of `standard`, `keyword_search`, and `domain_search`. Default is `standard`.
-2. `http_client` (string) &mdash; One of `curl_cffi` and `camoufox`. Default is `curl_cffi`.
+2. `http_client` (string) &mdash; Either `curl_cffi` or `camoufox`. Default is `curl_cffi`.
 3. `max_results` (integer) &mdash; The maximum total number of items (posts and comments combined) to return across all sources. Default is `999999`.
 4. `max_posts_per_collection` (integer) &mdash; The maximum number of posts to scrape from each collection. A collection is a single subreddit, profile, keyword search, or domain. Default is `999999`.
 5. `sort` (string) &mdash; One of `default`, `new`, and `hot`. Applies to subreddits, profiles, and `domain_search`. This option is ignored in `keyword_search` mode, which always uses Reddit's relevance sorting. Default is `default`.
