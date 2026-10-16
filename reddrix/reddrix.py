@@ -8,7 +8,6 @@ from camoufox.async_api import AsyncCamoufox
 from urllib.parse import urlencode, urlparse
 from collections.abc import AsyncGenerator
 from datetime import datetime, timezone
-from .iwswuf import iwsuff, happy, sad
 from whiskeysour import WhiskeySour
 from curl_cffi import AsyncSession
 from functools import wraps
@@ -17,10 +16,21 @@ from typing import Literal
 import asyncio
 import random
 import time
+import os
 
 
-USERNAME = happy
-PASSWORD = sad
+USERNAME = os.environ.get("REDDIT_USERNAME", "")
+PASSWORD = os.environ.get("REDDIT_PASSWORD", "")
+
+if not USERNAME or not PASSWORD:
+    CREDENTIALS_SUPPLIED = False
+    
+    # Fallback to disposable account (not reliable)
+    USERNAME = "WillowFlat"
+    PASSWORD = "crack460"
+else:
+    CREDENTIALS_SUPPLIED = True
+
 MAX_RETRIES = 5
 PLATFORMS = {
     "windows": "windows",
@@ -71,7 +81,7 @@ class Reddrix:
     def __init__(
         self,
         mode: Literal["standard", "keyword_search", "domain_search"]="standard",
-        http_client: Literal["curl_cffi", "camoufox"]="curl_cffi",
+        http_client: Literal["camoufox", "curl_cffi"]="camoufox",
         max_results: int=999999,
         max_posts_per_collection: int=999999,
         sort: Literal["default", "new", "hot"]="default",
@@ -102,11 +112,12 @@ class Reddrix:
         self.max_comments_depth = max_comments_depth
         self.max_comments_per_post = max_comments_per_post
         self.max_top_comments_per_post = max_top_comments_per_post
+        self.cookies = {}
         self.proxies = proxies
         self.is_verbose = verbose
         self.used_proxies = set()
         
-        self.http_client = "camoufox"
+        self.http_client = http_client
         self.browser: Browser | None = None
         self.context: BrowserContext | None = None
         self.page: Page | None = None
@@ -118,8 +129,12 @@ class Reddrix:
         self.request_semaphore = asyncio.Semaphore(10)
         self.items_queue = asyncio.Queue(maxsize=1000)
         self.is_running = True
+        
         if http_client == "curl_cffi":
             self.log("CURL_CFFI CLIENT IS DEPRECATED. SWITCHING TO CAMOUFOX...", level="warning")
+        
+        if not CREDENTIALS_SUPPLIED:
+            self.log("NO REDDIT CREDENTIALS PROVIDED. FALLING BACK TO A DISPOSABLE ACCOUNT (MAY NOT WORK).", level="warning")
     
     async def start(self):
         return await self.__aenter__()
@@ -150,66 +165,53 @@ class Reddrix:
         self.log("INITIALIZING SCRAPER")
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                if self.http_client == "camoufox":
-                    proxy_url = self.new_proxy_url()
-                    parsed_url = urlparse(proxy_url)
-                    self.camoufox = AsyncCamoufox(
-                        os=PLATFORMS[system().lower()],
-                        headless=True,
-                        humanize=True,
-                        fingerprint_preset=True,
-                        proxy={
-                            "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
-                            "username": parsed_url.username,
-                            "password": parsed_url.password
-                        } if proxy_url else None,
-                        geoip=True if proxy_url else False
-                    )
-                    self.browser: Browser = await self.camoufox.start()
-                    self.context = await self.browser.new_context()
-                    self.page = await self.context.new_page()
-                    n1 = iwsuff("ywivreqi")
-                    n2 = iwsuff("tewwasvh")
-                    nn = iwsuff("reqi")
-                    ls = iwsuff("pskmr")
-                    
-                    await self.page.goto("https://old.reddit.com/login")
-                    await self.page.wait_for_selector(f".{ls}", timeout=20000)
-                    h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
-                    s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
-                    await h.click()
-                    
-                    for char in iwsuff(USERNAME):
-                        await self.page.keyboard.press(char)
-                        await asyncio.sleep(random.uniform(0.1, 0.3))
-                    
-                    await s.click()
-                    
-                    for char in iwsuff(PASSWORD):
-                        await self.page.keyboard.press(char)
-                        await asyncio.sleep(random.uniform(0.1, 0.3))
-                    
-                    bgns = await self.page.wait_for_selector(f".{ls}")
-                    await bgns.click()
-                    await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
-                else: # Deprecated
-                    self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
-                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
-                    res = await self.session.get("https://old.reddit.com/login")
-                    res.raise_for_status()
+                proxy_url = self.new_proxy_url()
+                parsed_url = urlparse(proxy_url)
+                self.camoufox = AsyncCamoufox(
+                    os=PLATFORMS[system().lower()],
+                    headless=True,
+                    humanize=True,
+                    proxy={
+                        "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
+                        "username": parsed_url.username,
+                        "password": parsed_url.password
+                    } if proxy_url else None,
+                    geoip=True if proxy_url else False
+                )
+                self.browser: Browser = await self.camoufox.start()
+                self.context = await self.browser.new_context()
+                self.page = await self.context.new_page()
                 
+                await self.page.goto("https://old.reddit.com/login")
+                await self.page.wait_for_selector(f".login", timeout=20000)
+                username_field = await self.page.wait_for_selector(f'[name="username"]')
+                password_field = await self.page.wait_for_selector(f'[name="password"]')
+                await username_field.click()
+                
+                for char in USERNAME:
+                    await self.page.keyboard.press(char)
+                    await asyncio.sleep(random.uniform(0.1, 0.3))
+                
+                await password_field.click()
+                
+                for char in PASSWORD:
+                    await self.page.keyboard.press(char)
+                    await asyncio.sleep(random.uniform(0.1, 0.3))
+                
+                login_btn = await self.page.wait_for_selector(f".login")
+                await login_btn.click()
+                await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
+                self.cookies = {c["name"]: c["value"] for c in await self.context.cookies() if c["name"] == "reddit_session"}
+                self.session = AsyncSession(impersonate="chrome", proxy=proxy_url, cookies=self.cookies)
                 self.started = True
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, HTTPError, UnknownIPLocation):
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_RETRIES} FAILED. RETRYING...", level="error")
-                if self.http_client == "camoufox":
-                    try:
-                        await self.context.close()
-                        await self.browser.__aexit__(None, None, None)
-                        await self.session.__aexit__(None, None, None)
-                    except AttributeError:
-                        pass
-                else:
+                try:
+                    await self.context.close()
+                    await self.browser.__aexit__(None, None, None)
                     await self.session.close()
+                except AttributeError:
+                    pass
                 
                 self.started = False
             else:
@@ -224,15 +226,12 @@ class Reddrix:
         return self
     
     async def __aexit__(self, exc_type, exc, tb):
-        if self.http_client == "camoufox":
-            try:
-                await self.context.close()
-                await self.browser.__aexit__(None, None, None)
-                await self.camoufox.__aexit__(None, None, None)
-            except AttributeError:
-                pass
-        else:
-            await self.session.close()
+        try:
+            await self.context.close()
+            await self.browser.__aexit__(None, None, None)
+            await self.camoufox.__aexit__(None, None, None)
+        except AttributeError:
+            pass
         
         self.started = False
     
@@ -244,78 +243,63 @@ class Reddrix:
         cookie_refresh_successful = False
         self.log("REFRESHING COOKIES...")
         
-        if self.http_client == "camoufox":
-            try:
-                await self.context.close()
-                await self.browser.__aexit__(None, None, None)
-                await self.session.__aexit__(None, None, None)
-            except AttributeError:
-                pass
-        else:
+        try:
+            await self.context.close()
+            await self.browser.__aexit__(None, None, None)
             await self.session.close()
+        except AttributeError:
+            pass
         
         
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                if self.http_client == "camoufox":
-                    proxy_url = self.new_proxy_url()
-                    parsed_url = urlparse(proxy_url)
-                    self.camoufox = AsyncCamoufox(
-                        os=PLATFORMS[system().lower()],
-                        headless=True,
-                        humanize=True,
-                        fingerprint_preset=True,
-                        proxy={
-                            "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
-                            "username": parsed_url.username,
-                            "password": parsed_url.password
-                        } if proxy_url else None,
-                        geoip=True if proxy_url else False
-                    )
-                    self.browser: Browser = await self.camoufox.start()
-                    self.context = await self.browser.new_context()
-                    self.page = await self.context.new_page()
-                    n1 = iwsuff("ywivreqi")
-                    n2 = iwsuff("tewwasvh")
-                    nn = iwsuff("reqi")
-                    ls = iwsuff("pskmr")
-                    
-                    await self.page.goto("https://old.reddit.com/login")
-                    await self.page.wait_for_selector(f".{ls}", timeout=20000)
-                    h = await self.page.wait_for_selector(f'[{nn}="{n1}"]')
-                    s = await self.page.wait_for_selector(f'[{nn}="{n2}"]')
-                    await h.click()
-                    
-                    for char in iwsuff(USERNAME):
-                        await self.page.keyboard.press(char)
-                        await asyncio.sleep(random.uniform(0.1, 0.3))
-                    
-                    await s.click()
-                    
-                    for char in iwsuff(PASSWORD):
-                        await self.page.keyboard.press(char)
-                        await asyncio.sleep(random.uniform(0.1, 0.3))
-                    
-                    bgns = await self.page.wait_for_selector(f".{ls}")
-                    await bgns.click()
-                    await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
-                else: # Deprecated
-                    self.session = AsyncSession(proxy=self.new_proxy_url(), allow_redirects=True)
-                    self.session.headers["User-Agent"] = f"Reddrix{random.randint(0, 999999)}/v0.1.7"
-                    res = await self.session.get("https://old.reddit.com/login")
-                    res.raise_for_status()
+                proxy_url = self.new_proxy_url()
+                parsed_url = urlparse(proxy_url)
+                self.camoufox = AsyncCamoufox(
+                    os=PLATFORMS[system().lower()],
+                    headless=True,
+                    humanize=True,
+                    fingerprint_preset=True,
+                    proxy={
+                        "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
+                        "username": parsed_url.username,
+                        "password": parsed_url.password
+                    } if proxy_url else None,
+                    geoip=True if proxy_url else False
+                )
+                self.browser: Browser = await self.camoufox.start()
+                self.context = await self.browser.new_context()
+                self.page = await self.context.new_page()
+                
+                await self.page.goto("https://old.reddit.com/login")
+                await self.page.wait_for_selector(f".login", timeout=20000)
+                username_field = await self.page.wait_for_selector(f'[name="username"]')
+                password_field = await self.page.wait_for_selector(f'[name="password"]')
+                await username_field.click()
+                
+                for char in USERNAME:
+                    await self.page.keyboard.press(char)
+                    await asyncio.sleep(random.uniform(0.1, 0.3))
+                
+                await password_field.click()
+                
+                for char in PASSWORD:
+                    await self.page.keyboard.press(char)
+                    await asyncio.sleep(random.uniform(0.1, 0.3))
+                
+                login_btn = await self.page.wait_for_selector(f".login")
+                await login_btn.click()
+                await self.page.wait_for_selector('[alt="User Avatar"]', timeout=20000)
+                self.cookies = {c["name"]: c["value"] for c in await self.context.cookies() if c["name"] == "reddit_session"}
+                self.session = AsyncSession(impersonate="chrome", proxy=proxy_url, cookies=self.cookies)
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, HTTPError, UnknownIPLocation):
                 self.log(f"COOKIE REFRESH ATTEMPT {attempt}/{MAX_RETRIES} FAILED. RETRYING...", level="error")
-                
-                if self.http_client == "camoufox":
-                    try:
-                        await self.context.close()
-                        await self.browser.__aexit__(None, None, None)
-                        await self.session.__aexit__(None, None, None)
-                    except AttributeError:
-                        pass
-                else:
+                try:
+                    await self.context.close()
+                    await self.browser.__aexit__(None, None, None)
                     await self.session.close()
+                except AttributeError:
+                    pass
                 
                 self.cookies_last_accessed_at = time.time()
             else:
