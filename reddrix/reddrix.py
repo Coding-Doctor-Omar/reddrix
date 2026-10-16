@@ -702,8 +702,17 @@ class Reddrix:
                     break
 
                 soup = WhiskeySour(page_html)
-                next_page_el = soup.select_one("faceplate-partial[loading=lazy]")
-                next_page_url = "https://www.reddit.com" + next_page_el.get("src") if next_page_el else ""
+                faceplate_partials = soup.select("faceplate-partial[loading=lazy][src]")
+                next_page_el = None
+                
+                for el in faceplate_partials:
+                    if "cursor=e" in el.get("src"):
+                        next_page_el = el
+                
+                if next_page_el and "cursor=e" in page_html:
+                    next_page_url = "https://www.reddit.com" + next_page_el.get("src").replace("amp;", "") if next_page_el else ""
+                else:
+                    next_page_url = None
 
                 posts = soup.select('a[data-testid="post-title"]')
                 for post in posts:
