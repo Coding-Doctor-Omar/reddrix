@@ -66,7 +66,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
@@ -94,7 +94,7 @@ async def main():
     
     scrape_count = 0
     async for item in reddrix.get_items():
-        # item is a Python dictionary with more than 24 keys.
+        # item is a Python dictionary with 24 keys.
         scrape_count += 1
         print(scrape_count, item["submissionType"], item["submissionUrl"])
     
@@ -123,7 +123,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
@@ -163,7 +163,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
