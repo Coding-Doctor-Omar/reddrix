@@ -1,3 +1,7 @@
+## v1.0.1 (Oct. 18, 2026)
+
+1. Remove forgotten debug statement.
+
 ## v1.0.0 (Oct. 18, 2026)
 
 1. Remove `http_client` and `domains` parameters from the `Reddrix` class.
