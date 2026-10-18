@@ -514,7 +514,6 @@ class Reddrix:
     
     async def fetch_post(self, url: str, initial_page: bool=False) -> None:
         """Fetches the post details (for the initial page) and comments."""
-        self.log(url)
         if self.is_running:
             fetched_comments_count = 0
             fetched_top_comments_count = 0
