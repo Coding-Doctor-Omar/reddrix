@@ -10,6 +10,7 @@
 4. Add `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year` argument options for the `sort` parameter in the `Reddrix` class.
 5. Add `tags` field to the dataset (includes tags such as `Spoiler`, `NSFW`, etc).
 6. Redesign Reddrix completely to make it no longer rely on JSON endpoints and to make it once again a no-login scraper.
+7. The standalone `get` method no longer supports JSON. It only supports HTML or XML (no more `expected_data_type` parameter).
 
 ## v0.2.7 (Oct. 16, 2026)
 
