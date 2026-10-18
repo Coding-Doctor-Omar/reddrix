@@ -1,3 +1,11 @@
+## v1.0.0 (Oct. 18, 2026)
+
+1. Remove `http_client` and `domains` parameters from the `Reddrix` class.
+2. Remove `isCrosspost`, `isEdited`, `authorFlairText`, `authorFlairImageUrl`, `isNSFW` (inside `tags`), `imageUrl` (will be the `externalUrl`), and `videoUrl` (will be the `externalUrl`) dataset fields.
+3. Add `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year` argument options for the `sort` parameter in the `Reddrix` class.
+4. Add `tags` field to the dataset (includes tags such as `Spoiler`, `NSFW`, etc).
+5. Redesign Reddrix completely to make it no longer rely on JSON endpoints and to make it once again a no-login scraper.
+
 ## v0.2.7 (Oct. 16, 2026)
 
 1. Avoid using Camoufox fingerprint presets for more fingerprint variety.
