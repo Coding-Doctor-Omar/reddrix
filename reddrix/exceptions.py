@@ -6,3 +6,7 @@ class FatalAntiBotBlockError(Exception):
 class AntiBotBlockError(Exception):
     """Raised when the scraper is blocked once."""
     pass
+
+class NotInitializedError(Exception):
+    """Raised when the scraper is used without being initialized."""
+    pass
