@@ -1,6 +1,7 @@
 ## v1.1.2 (Oct. 19, 2026)
 
 1. Change the `depth` for comments to be an `integer` instead of a `string`.
+2. Fix comment scraping bug that caused the scraper to not load "more comments".
 
 ## v1.1.1 (Oct. 19, 2026)
 
