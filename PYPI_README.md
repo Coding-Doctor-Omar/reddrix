@@ -4,7 +4,7 @@
 
 # Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python (No Login or API Key)
 
-<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics (no login or API key). Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords. Collect rich, structured data including authors, scores, timestamps, post flairs, comment threads, and more (24+ fields).</h3></p>
+<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics (no login or API key). Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords. Collect rich, structured data including authors, scores, timestamps, post flairs, full comment threads, and more (24+ fields).</h3></p>
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
@@ -66,7 +66,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
@@ -94,7 +94,7 @@ async def main():
     
     scrape_count = 0
     async for item in reddrix.get_items():
-        # item is a Python dictionary with more than 24 keys.
+        # item is a Python dictionary with 24 keys.
         scrape_count += 1
         print(scrape_count, item["submissionType"], item["submissionUrl"])
     
@@ -123,7 +123,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
@@ -131,7 +131,7 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-**Using Reddrix as a standalone Reddit http client for your custom scraping setup (random jitter between requests does not apply when using the get method directly, so you'll need to use your own logic here, or use the preset scraping setup shown above):**
+**Using Reddrix as a standalone Reddit http client for your custom scraping setup (has both GET and POST methods):**
 
 ```python
 from reddrix import Reddrix
@@ -145,6 +145,9 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 ```
+
+> [!TIP]
+> Random request jittering does not apply when using the GET and POST methods directly, so use your own jittering in this case, or just use the preset scraping setup shown above.
 
 **Using Reddrix with Proxies:**
 
@@ -163,7 +166,7 @@ async def main():
     ) as reddrix:
         scrape_count = 0
         async for item in reddrix.get_items():
-            # item is a Python dictionary with more than 24 keys.
+            # item is a Python dictionary with 24 keys.
             scrape_count += 1
             print(scrape_count, item["submissionType"], item["submissionUrl"])
 
@@ -176,7 +179,7 @@ if __name__ == "__main__":
 - 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
 - 🔑 **No Login or API Key**: Scrape Reddit seamlessly without logging in or providing an API key.
 - 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords.
-- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and comment thread metadata.
+- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and FULL comment threads (no depth limit).
 - 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, request jittering, and configurable proxies.
 - ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
 - 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
@@ -257,7 +260,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 6. `parentId` &mdash; [`string`, `None`] The ID of the direct parent post or comment.
 7. `parentPostId` &mdash; [`string`, `None`] The ID of the parent post. For posts, this field will always be `None` since posts have no parent.
 8. `parentPostUrl` &mdash; [`string`, `None`] The URL of the parent post. For posts, this field will always be `None` since posts have no parent.
-9. `postType` &mdash; [`string`, `None`] The post type. Can be any of `text`, `poll`, `link`, `image`, `gallery`, or `video`. For comments, this field will always be `None`.
+9. `postType` &mdash; [`string`, `None`] The post type. Can be any of `text`, `poll`, `link`, `crosspost`, `image`, `gallery`, or `video`. For comments, this field will always be `None`.
 10. `crosspostParentId` &mdash; [`string`, `None`] The ID of the parent of the crosspost (for posts that are not crossposts, will be `None`).
 11. `crosspostParentUrl` &mdash; [`string`, `None`] The URL of the parent of the crosspost (for posts that are not crossposts, will be `None`).
 12. `title` &mdash; [`string`, `None`] The post title (will always be `None` for comments).
@@ -285,7 +288,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 7. `profile_urls` (list of strings) &mdash; User profile URLs to scrape the submitted posts of, e.g. `["https://www.reddit.com/user/username"]`. Both `/user/` and `/u/` URLs are supported. Used in `standard` mode only. URLs that are not valid profile URLs, or those of profiles that are deleted, banned, or hiding their content, are skipped. Default is `[]`.
 8.  `query` (string) &mdash; The search keywords to look up site-wide on Reddit. Used in `keyword_search` mode only. Default is `None`.
 9.  `include_comments` (boolean) &mdash; Whether to scrape the comments of each post in addition to the post itself. Comments are returned as separate items with `submissionType` set to `comment`. Default is `False`.
-10. `max_comments_depth` (integer) &mdash; The maximum comment depth to scrape. Top-level comments have a depth of `0`, their replies have a depth of `1`, and so on. Only applies if `include_comments` is `True`. Default is `10`.
+10. `max_comments_depth` (integer) &mdash; The maximum comment depth to scrape. Top-level comments have a depth of `0`, their replies have a depth of `1`, and so on. Only applies if `include_comments` is `True`. Default is `999999`.
 11. `max_comments_per_post` (integer) &mdash; The maximum total number of comments (top-level comments and replies) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
 12. `max_top_comments_per_post` (integer) &mdash; The maximum number of top-level comments (depth `0`) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
 13. `proxies` (list of strings) &mdash; A list of proxy URLs in the format `scheme://user:pass@hostname:port`. Reddrix rotates through them automatically, picking an unused proxy first and reusing proxies only after the whole list has been used. Default is `[]` (no proxy).
