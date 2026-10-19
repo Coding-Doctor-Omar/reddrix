@@ -10,3 +10,7 @@ class AntiBotBlockError(Exception):
 class NotInitializedError(Exception):
     """Raised when the scraper is used without being initialized."""
     pass
+
+class InvalidRequestError(Exception):
+    """Raised when the standalone get and post methods receive invalid requests."""
+    pass
