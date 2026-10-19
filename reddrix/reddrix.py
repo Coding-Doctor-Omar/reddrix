@@ -1,6 +1,6 @@
-from playwright.async_api import Browser, BrowserContext, Page, TimeoutError as PlaywrightTimeoutError, Error
-from .exceptions import AntiBotBlockError, FatalAntiBotBlockError, NotInitializedError
+from .exceptions import AntiBotBlockError, FatalAntiBotBlockError, NotInitializedError, InvalidRequestError
 from wreq.exceptions import StatusError, TimeoutError as wTimeoutError, BuilderError
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError, Error
 from wreq import Cookie, Jar, Client, Proxy, SameSite, redirect
 from urllib.parse import urlencode, urlparse, quote, unquote
 from wreq.emulation import Emulation, Profile, Platform
@@ -87,7 +87,7 @@ class Reddrix:
         profile_urls: list[str]=[],
         query: str=None,
         include_comments: bool=False,
-        max_comments_depth: int=10,
+        max_comments_depth: int=999999,
         max_comments_per_post: int=999999,
         max_top_comments_per_post: int=999999,
         proxies: list[str]=[],
@@ -106,16 +106,14 @@ class Reddrix:
         self.max_comments_depth = max_comments_depth
         self.max_comments_per_post = max_comments_per_post
         self.max_top_comments_per_post = max_top_comments_per_post
-        self.max_comments_depth_reached = False
+        self.seen_comment_ids = set()
         
         self.cookies = []
+        self.csrf_token: str | None = None
         self.cookie_jar = Jar()
         self.proxies = proxies
         self.is_verbose = verbose
         self.used_proxies = set()
-        self.browser: Browser | None = None
-        self.context: BrowserContext | None = None
-        self.page: Page | None = None
         self.client: Client | None = None
         self.started = False
         self.cookie_renewal_in_progress = False
@@ -155,6 +153,9 @@ class Reddrix:
         """Fills the wreq client's cookie jar from the Camoufox browser context cookies."""
         
         for c in self.cookies:
+            if c["name"] == "csrf_token":
+                self.csrf_token = c["value"]
+            
             if c["sameSite"] == "Lax":
                 same_site = SameSite.Lax
             elif c["sameSite"] == "Strict":
@@ -482,6 +483,38 @@ class Reddrix:
                 "thumbnailUrl": thumbnail_url,
                 "galleryImagesUrls": gallery_images_urls
             }
+
+    @auto_retry(max_attempts=5)
+    async def post(self, url: str, params: dict={}, json_data: dict={}, form_data: dict={}) -> str | None:
+        async with self.request_semaphore:
+            if params:
+                url += f"{'?' if '?' not in url else ''}{urlencode(params) if '?' not in url else f'&{urlencode(params)}'}"
+            
+            while self.cookie_renewal_in_progress:
+                await asyncio.sleep(0.07)
+            
+            try:
+                if form_data:
+                    res = await self.client.post(url, form=form_data)
+                elif json_data:
+                    res = await self.client.post(url, json=json_data)
+                else:
+                    raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
+                
+                status_code = res.status.as_int()
+                res.raise_for_status()
+            except StatusError:
+                if status_code == 404:
+                    return None
+                else:
+                    raise AntiBotBlockError
+            except wTimeoutError:
+                raise AntiBotBlockError
+            except BuilderError:
+                return None
+            else:
+                data = await res.text()
+                return data  
     
     @auto_retry(max_attempts=5)
     async def get(self, url: str, params: dict={}) -> str | None:
@@ -509,9 +542,11 @@ class Reddrix:
                 data = await res.text()
                 return data   
     
-    async def fetch_post(self, url: str, initial_page: bool=False) -> None:
+    async def fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0) -> None:
         """Fetches the post details (for the initial page) and comments."""
-        url = url.split("/comments/")[0] + "/comments/" + "/".join(quote(unquote(item)) for item in url.split("/comments/")[-1].split("/"))
+        if "/comments/" in url and initial_page:
+            url = url.split("/comments/")[0] + "/comments/" + "/".join(quote(unquote(item)) for item in url.split("/comments/")[-1].split("/"))
+        
         if self.is_running:
             fetched_comments_count = 0
             fetched_top_comments_count = 0
@@ -519,7 +554,12 @@ class Reddrix:
             
             async with self.page_semaphore:
                 await asyncio.sleep(random.uniform(0.5, 2)) # Random jitter
-                page_data = await self.get(url)
+                
+                if initial_page or not cursor:
+                    page_data = await self.get(url)
+                else:
+                    form = {"csrf_token": self.csrf_token, "cursor": cursor}
+                    page_data = await self.post(url, form_data=form)
 
             if not page_data and self.is_running:
                 self.log(f"SKIPPING URL: {url} (REASON: Invalid Url)", level="warning")
@@ -546,6 +586,12 @@ class Reddrix:
                 if fetched_comments_count >= self.max_comments_per_post:
                     break
                 
+                if comment["thingid"] not in self.seen_comment_ids:
+                    self.seen_comment_ids.add(comment["thingid"])
+                    comment["depth"] = str(int(comment["depth"]) + depth_offset)
+                else:
+                    continue
+                
                 if int(comment["depth"]) > self.max_comments_depth:
                     self.max_comments_depth_reached = True
                     continue
@@ -563,18 +609,50 @@ class Reddrix:
                             await self.items_queue.put(comment)
                             fetched_comments_count += 1
             
-            if not self.max_comments_depth_reached:
-                children_comments_elements = soup.select('faceplate-partial[slot="children"]')
-                children_comments_urls = ["https://www.reddit.com" + unescape(el.get("src")) for el in children_comments_elements]
-                
-                for url in children_comments_urls:
-                    more.append(asyncio.create_task(self.fetch_post(url)))
+            children_comments_elements = soup.select('#comment-children > faceplate-partial[slot="children"]')
+            children_comments_urls_and_cursors: list[tuple[str]] = []
             
-            more_comments_element = soup.select_one("#top-level-more-comments-partial")  
-            if more_comments_element:
-                more_comments_url = "https://www.reddit.com" + unescape(more_comments_element.get("src"))
-                more.append(asyncio.create_task(self.fetch_post(more_comments_url)))
+            for el in children_comments_elements:
+                children_url = "https://www.reddit.com" + unescape(el.get("src"))
+                children_cursor_el = el.select_one('input[name="cursor"]')
+                children_cursor = children_cursor_el["value"]
+                children_comments_urls_and_cursors.append((children_url, children_cursor))
             
+            
+            for item in children_comments_urls_and_cursors:
+                more.append(asyncio.create_task(self.fetch_post(url=item[0], cursor=item[1])))
+            
+            single_thread_children_els = soup.select('#comment-children > a[slot="children"]')
+            for el in single_thread_children_els:
+                parent_comment = el.find_parent("shreddit-comment")
+                depth_offset_ = int(parent_comment["depth"])
+                children_url = "https://www.reddit.com" + unescape(el.get("href"))
+                more.append(asyncio.create_task(self.fetch_post(children_url, depth_offset=depth_offset_)))
+            
+            
+            # Simulating the automatic scroll more comments loading
+            automatic_more_comments_element = soup.select_one("#top-level-more-comments-partial")  
+            if automatic_more_comments_element:
+                cursor_el = automatic_more_comments_element.select_one('input[name="cursor"]')
+                cursor_val = cursor_el["value"]
+                automatic_more_comments_url = "https://www.reddit.com" + unescape(automatic_more_comments_element.get("src"))
+                more.append(asyncio.create_task(self.fetch_post(automatic_more_comments_url, cursor=cursor_val)))
+            
+            # Simulating the manual more comments button if needed
+            faceplate_partials_elements = soup.select('faceplate-partial.more-comments-partial[loading="action"]')
+            if faceplate_partials_elements:
+                manual_more_comments_element = faceplate_partials_elements[-1]
+            else:
+                manual_more_comments_element = None
+            
+            if manual_more_comments_element:
+                manual_more_comments_url = "https://www.reddit.com" + unescape(manual_more_comments_element.get("src"))
+                if "rootComment" in manual_more_comments_url:
+                    cursor_el = manual_more_comments_element.select_one('input[name="cursor"]')
+                    cursor_val = cursor_el["value"]
+                    more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val)))
+            
+            # Waiting for all comments to finish for the post
             if more:
                 await asyncio.gather(*more)
 
