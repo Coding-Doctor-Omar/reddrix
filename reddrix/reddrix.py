@@ -440,7 +440,7 @@ class Reddrix:
                 body_text += f"\n{unescape(el['href'])}"
             
             author = data["author"]
-            depth = data["depth"]
+            depth = int(data["depth"])
             post_flair = None
             tags = []
             
