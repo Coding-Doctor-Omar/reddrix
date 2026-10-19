@@ -2,12 +2,12 @@ from playwright.async_api import Browser, BrowserContext, Page, TimeoutError as 
 from .exceptions import AntiBotBlockError, FatalAntiBotBlockError, NotInitializedError
 from wreq.exceptions import StatusError, TimeoutError as wTimeoutError, BuilderError
 from wreq import Cookie, Jar, Client, Proxy, SameSite, redirect
+from urllib.parse import urlencode, urlparse, quote, unquote
 from wreq.emulation import Emulation, Profile, Platform
 from playwright._impl._errors import TargetClosedError
 from datetime import datetime, timezone, timedelta
 from camoufox.exceptions import UnknownIPLocation
 from camoufox.async_api import AsyncCamoufox
-from urllib.parse import urlencode, urlparse
 from collections.abc import AsyncGenerator
 from whiskeysour import WhiskeySour, Tag
 from functools import wraps
@@ -46,23 +46,20 @@ def auto_retry(max_attempts: int):
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
-            url = kwargs.get("url") or args[1] if func.__name__ == "fetch_page_data" else None
+            url = kwargs.get("url") or args[1]
             scraper: Reddrix = args[0]
             
             if not scraper.started:
                 raise NotInitializedError("Scraper is not initialized. Initialize the scraper with the context manager or the start() and stop() methods first.")
 
-            for attempt in range(max_attempts + 1):
+            for attempt in range(1, max_attempts + 1):
                 current_time = time.time()
                 try:
                     result = await func(*args, **kwargs)
                 except (AntiBotBlockError, TargetClosedError, asyncio.CancelledError):
                     if scraper.is_running:
                         if attempt == max_attempts:
-                            if url:
-                                raise FatalAntiBotBlockError(f"Error fetching URL: {url}\n\nError Message: Cookies expired, and attempts have been exhausted.")
-                            else:
-                                raise FatalAntiBotBlockError(f"Error executing function: {func.__name__}\n\nError Message: Cookies expired, and attempts have been exhausted.")
+                            raise FatalAntiBotBlockError(f"Error fetching URL: {url}\n\nError Message: Cookies expired, and attempts have been exhausted.")
 
                         async with COOKIE_LOCK:
                             if current_time - scraper.cookies_last_accessed_at >= 15:
@@ -486,7 +483,7 @@ class Reddrix:
                 "galleryImagesUrls": gallery_images_urls
             }
     
-    @auto_retry(max_attempts=3)
+    @auto_retry(max_attempts=5)
     async def get(self, url: str, params: dict={}) -> str | None:
         async with self.request_semaphore:
             if params:
@@ -514,6 +511,7 @@ class Reddrix:
     
     async def fetch_post(self, url: str, initial_page: bool=False) -> None:
         """Fetches the post details (for the initial page) and comments."""
+        url = url.split("/comments/")[0] + "/comments/" + "/".join(quote(unquote(item)) for item in url.split("/comments/")[-1].split("/"))
         if self.is_running:
             fetched_comments_count = 0
             fetched_top_comments_count = 0
