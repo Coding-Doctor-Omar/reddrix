@@ -1,3 +1,7 @@
+## v1.1.1 (Oct. 19, 2026)
+
+1. Fix edge case where post urls with special characters fail.
+
 ## v1.1.0 (Oct. 19, 2026)
 
 1. Fix pagination bug that caused the scraper to keep stuck in the last page.
