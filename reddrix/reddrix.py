@@ -232,7 +232,7 @@ class Reddrix:
         if not initialization_successful:
             raise FatalAntiBotBlockError(f"FAILED TO CONNECT TO REDDIT AFTER {MAX_COOKIE_RETRIES} ATTEMPTS.")
         else:
-            self.log("BEGINNING SCRAPING...")
+            self.log("BEGINNING SCRAPING")
         
         return self
     
@@ -354,7 +354,7 @@ class Reddrix:
             if post_flair_el:
                 post_flair = post_flair_el.text.strip() or None
             
-            tags_els = data.select("shreddit-content-tags .text-caption-1")
+            tags_els = data.select('[slot="ssr-post-content-header"] > div')
             tags = []
             
             for el in tags_els:

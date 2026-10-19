@@ -1,3 +1,7 @@
+## v1.0.2 (Oct. 19, 2026)
+
+1. CSS selector enhancement for post tags.
+
 ## v1.0.1 (Oct. 18, 2026)
 
 1. Remove forgotten debug statement.
