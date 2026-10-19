@@ -19,8 +19,8 @@
 1. Remove `http_client`, `domains`, and `time_frame` parameters from the `Reddrix` class.
 2. Remove `isCrosspost`, `isEdited`, `authorFlairText`, `authorFlairImageUrl`, `isNSFW` (inside `tags`), `imageUrl` (will be the `externalUrl`), and `videoUrl` (will be the `externalUrl`) dataset fields.
 3. Replace `curl-cffi` dependency with `wreq`.
-4. Add `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year` argument options for the `sort` parameter in the `Reddrix` class.
-5. Add `tags` field to the dataset (includes tags such as `Spoiler`, `NSFW`, etc).
+4. Add `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year` argument options to the `sort` parameter in the `Reddrix` class.
+5. Add `tags` field to the dataset (includes tags such as `Spoiler`, `NSFW`, etc) and `crosspost` to the `postType` field.
 6. Redesign Reddrix completely to make it no longer rely on JSON endpoints and to make it once again a no-login scraper.
 7. The standalone `get` method no longer supports JSON. It only supports HTML or XML (no more `expected_data_type` parameter).
 
