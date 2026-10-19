@@ -610,6 +610,8 @@ class Reddrix:
                     
                     if next_page_el:
                         next_page_url = "https://www.reddit.com" + unescape(next_page_el["src"])
+                    else:
+                        next_page_url = None
 
                     for post in posts:
                         if fetched_posts_count >= self.max_posts_per_collection:
