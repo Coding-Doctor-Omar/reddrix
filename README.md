@@ -257,7 +257,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 6. `parentId` &mdash; [`string`, `None`] The ID of the direct parent post or comment.
 7. `parentPostId` &mdash; [`string`, `None`] The ID of the parent post. For posts, this field will always be `None` since posts have no parent.
 8. `parentPostUrl` &mdash; [`string`, `None`] The URL of the parent post. For posts, this field will always be `None` since posts have no parent.
-9. `postType` &mdash; [`string`, `None`] The post type. Can be any of `text`, `poll`, `link`, `image`, `gallery`, or `video`. For comments, this field will always be `None`.
+9. `postType` &mdash; [`string`, `None`] The post type. Can be any of `text`, `poll`, `link`, `crosspost`, `image`, `gallery`, or `video`. For comments, this field will always be `None`.
 10. `crosspostParentId` &mdash; [`string`, `None`] The ID of the parent of the crosspost (for posts that are not crossposts, will be `None`).
 11. `crosspostParentUrl` &mdash; [`string`, `None`] The URL of the parent of the crosspost (for posts that are not crossposts, will be `None`).
 12. `title` &mdash; [`string`, `None`] The post title (will always be `None` for comments).
