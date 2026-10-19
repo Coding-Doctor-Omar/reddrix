@@ -1,3 +1,7 @@
+## v1.1.0 (Oct. 19, 2026)
+
+1. Fix pagination bug that caused the scraper to keep stuck in the last page.
+
 ## v1.0.2 (Oct. 19, 2026)
 
 1. CSS selector enhancement for post tags.
