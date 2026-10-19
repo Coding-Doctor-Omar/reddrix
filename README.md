@@ -4,7 +4,7 @@
 
 # Reddrix &mdash; An open-source, blazing-fast Reddit Scraper for Python (No Login or API Key)
 
-<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics (no login or API key). Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords. Collect rich, structured data including authors, scores, timestamps, post flairs, comment threads, and more (24+ fields).</h3></p>
+<p align="center"><h3>A powerful, async-first Reddit scraper (with built-in proxy support) for posts and comments with detailed metrics (no login or API key). Scrape subreddits, profiles, and specific posts, or search Reddit site-wide by keywords. Collect rich, structured data including authors, scores, timestamps, post flairs, full comment threads, and more (24+ fields).</h3></p>
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
@@ -179,7 +179,7 @@ if __name__ == "__main__":
 - 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
 - 🔑 **No Login or API Key**: Scrape Reddit seamlessly without logging in or providing an API key.
 - 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords.
-- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and FULL comment threads.
+- 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and FULL comment threads (no depth limit).
 - 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, request jittering, and configurable proxies.
 - ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
 - 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
