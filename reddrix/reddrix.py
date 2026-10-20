@@ -200,7 +200,8 @@ class Reddrix:
                     page = await context.new_page()
                     
                     await page.goto(COOKIE_URL)
-                    await page.wait_for_selector("#login-button", timeout=15000)
+                    login_btn = page.locator("#login-button")
+                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
                     self.cookies = await context.cookies()
                 
                 self.fill_cookie_jar()
@@ -278,7 +279,8 @@ class Reddrix:
                     page = await context.new_page()
                     
                     await page.goto(COOKIE_URL)
-                    await page.wait_for_selector("#login-button", timeout=15000)
+                    login_btn = page.locator("#login-button")
+                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
                     self.cookies = await context.cookies()
                 
                 self.fill_cookie_jar()
@@ -445,7 +447,7 @@ class Reddrix:
             post_flair = None
             tags = []
             
-            if "r/" in submission_url:
+            if "/r/" in submission_url:
                 subreddit = "r/" + submission_url.split("/r/")[-1].split("/")[0]
             else:
                 subreddit = None
