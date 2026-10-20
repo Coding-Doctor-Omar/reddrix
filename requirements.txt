@@ -43,7 +43,6 @@ pywin32-ctypes==0.2.3
 PyYAML==6.0.3
 readchar==4.2.2
 readme_renderer==46.0
-reddrix @ file:///C:/Users/Omar/OneDrive/Documents/My%20Python%20Projects/Professional%20Portfolio%20Projects/20.%20Reddrix/dist/reddrix-0.1.0-py3-none-any.whl#sha256=261ba784f1b34a03d54fcb7cbe79b4aa3fcec7aa01e8b36c8a2ec14d2e5d9ffa
 requests==2.34.2
 requests-toolbelt==1.0.0
 rfc3986==2.0.0
