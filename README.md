@@ -181,7 +181,7 @@ if __name__ == "__main__":
 
 By default, `stealth` is set to `adaptive`, which means Reddrix will auto-activate it only when scraping comments. To explicitly make it active all times, set it to `True`. When this mode is active, Reddrix will send the same internal API requests it sends with the wreq client but directly from within the Camoufox browser context using JavaScript fetch. While these requests are being fired in the background, Reddrix will make human-like, random mouse hovering in the page. The key **advantage** of this strategy is that it is much more undetectable because it avoids the fingerprint drift that occurs when harvesting cookies from a browser and using them in another HTTP client. Also, the majority of the scraping speed is preserved because the browser isn't really waiting for navigation or clicking elements aside from the random mouse movements it is doing in the home page. The **disadvantage** is that the stealth mode is resource-heavy.
 
-To excplicitly disable this mode, set `stealth` to `False`. This way, Camoufox will only be used as a cookie harvester, while wreq will use these cookies to make all the HTTP requests. The **advantage** is that this setup is much less resource-intensive, while the **disadvantage** is that it gets detected quickly when scraping lots of comments.
+To explicitly disable this mode, set `stealth` to `False`. This way, Camoufox will only be used as a cookie harvester, while wreq will use these cookies to make all the HTTP requests. The **advantage** is that this setup is much less resource-intensive, while the **disadvantage** is that it gets detected quickly when scraping lots of comments.
 
 Example Code:
 
