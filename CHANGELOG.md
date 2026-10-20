@@ -1,3 +1,8 @@
+## v1.1.3 (Oct. 20, 2026)
+
+1. [Bug Fix] Fix profile URLs hanging bug.
+2. Minor parsing accuracy enhancement.
+
 ## v1.1.2 (Oct. 19, 2026)
 
 1. Change the `depth` for comments to be an `integer` instead of a `string`.
