@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.1.5-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.0-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -30,7 +30,7 @@
 
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
-    <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
+    <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments">Reddrix Arguments</a>
 </p>
 
 > [!TIP]
@@ -177,9 +177,43 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
+**Stealth Mode:**
+
+By default, `stealth` is set to `adaptive`, which means Reddrix will auto-activate it only when scraping comments. To explicitly make it active all times, set it to `True`. When this mode is active, Reddrix will send the same internal API requests it sends with the wreq client but directly from within the Camoufox browser context using JavaScript fetch. While these requests are being fired in the background, Reddrix will make human-like, random mouse hovering in the page. The key **advantage** of this strategy is that it is much more undetectable because it avoids the fingerprint drift that occurs when harvesting cookies from a browser and using them in another HTTP client. Also, the majority of the scraping speed is preserved because the browser isn't really waiting for navigation or clicking elements aside from the random mouse movements it is doing in the home page. The **disadvantage** is that the stealth mode is resource-heavy.
+
+To excplicitly disable this mode, set `stealth` to `False`. This way, Camoufox will only be used as a cookie harvester, while wreq will use these cookies to make all the HTTP requests. The **advantage** is that this setup is much less resource-intensive, while the **disadvantage** is that it gets detected quickly when scraping lots of comments.
+
+Example Code:
+
+```python
+from reddrix import Reddrix
+import asyncio
+
+async def main():
+    async with Reddrix(
+        mode="standard",
+        stealth=True, # Can also be set to False or "adaptive"
+        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        sort="new",
+        include_comments=True,
+        max_results=500,
+        max_posts_per_collection=500,
+        verbose=True
+    ) as reddrix:
+        scrape_count = 0
+        async for item in reddrix.get_items():
+            # item is a Python dictionary with 24 keys.
+            scrape_count += 1
+            print(scrape_count, item["submissionType"], item["submissionUrl"])
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ## Features
 
 - 🚀 **Async-First:** High-performance asynchronous scraping with `asyncio` and an async iterator for streaming results.
+- 🥷 **Adaptive Stealth**: Optionally enable the `stealth` mode for intelligent, highly undetectable scraping.
 - 🔑 **No Login or API Key**: Scrape Reddit seamlessly without logging in or providing an API key.
 - 🔍 **Multiple Search Modes:** Scrape subreddits, user profiles, and specific posts, or search Reddit by keywords.
 - 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and FULL comment threads (no depth limit).
@@ -280,7 +314,7 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 23. `thumbnailUrl` &mdash; [`string`, `None`] The thumbnail image URL for `video`, `image`, and `gallery` post types (always `None` for any other submission).
 24. `galleryImagesUrls` &mdash; [`list`] A list of URLs for all images in a gallery (always empty for any submission other than `gallery` posts).
 
-## Reddrix Arguments Options
+## Reddrix Arguments
 
 1. `mode` (string) &mdash; Either `standard` or `keyword_search`. Default is `standard`.
 2. `max_results` (integer) &mdash; The maximum total number of items (posts and comments combined) to return across all sources. Default is `999999`.
