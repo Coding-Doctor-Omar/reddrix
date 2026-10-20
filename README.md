@@ -33,6 +33,9 @@
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
 </p>
 
+> [!TIP]
+> Reddrix works best when provided with a list of proxy URLs (see below). Without proxies, it will still work, but after frequent scrapes, your IP address may start getting more aggressively rate limited.
+
 ## Installation
 
 ```bash
