@@ -1,3 +1,8 @@
+## v1.1.4 (Oct. 20, 2026)
+
+1. [Bug Fix] Fix a remnant of a previous bug that caused Reddrix not to fetch all the comment tree.
+2. Add firefox realistic fingerprint presets for more stealth.
+
 ## v1.1.3 (Oct. 20, 2026)
 
 1. [Bug Fix] Fix profile URLs hanging bug.
