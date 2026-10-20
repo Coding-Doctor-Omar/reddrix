@@ -1,3 +1,7 @@
+## v1.1.5 (Oct. 20, 2026)
+
+1. [Bug Fix] Fix a bug that caused Reddrix to ignore `max_comments_per_post` and `max_top_comments_per_post` arguments.
+
 ## v1.1.4 (Oct. 20, 2026)
 
 1. [Bug Fix] Fix a remnant of a previous bug that caused Reddrix not to fetch all the comment tree.
