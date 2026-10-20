@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.1.2-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.1.3-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -182,7 +182,7 @@ if __name__ == "__main__":
 - 💬 **Comprehensive Data Extraction:** Collect posts and comments with 24+ structured fields, including authors, scores, timestamps, flairs, media URLs, and FULL comment threads (no depth limit).
 - 🛡️ **Resilient Scraping:** Built-in retries, cookie renewal, request jittering, and configurable proxies.
 - ⚙️ **Fine-Grained Control:** Configure sorting, time frames, result limits, comment depth, and comment counts.
-- 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` method in your own custom scraping workflows.
+- 🧩 **Standalone HTTP Client:** Use Reddrix's asynchronous `get()` or `post()` method in your own custom scraping workflows.
 - 🐍 **Pythonic API:** Manage scraper resources with an async context manager or explicit `start()` and `stop()` methods.
 
 ## Output Dataset
