@@ -1,3 +1,7 @@
+## v1.2.0 (Oct. 20, 2026)
+
+1. [NEW FEATURE] Add `stealth` mode.
+
 ## v1.1.5 (Oct. 20, 2026)
 
 1. [Bug Fix] Fix a bug that caused Reddrix to ignore `max_comments_per_post` and `max_top_comments_per_post` arguments.
