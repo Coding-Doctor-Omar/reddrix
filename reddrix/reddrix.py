@@ -107,6 +107,7 @@ class Reddrix:
         self.max_comments_per_post = max_comments_per_post
         self.max_top_comments_per_post = max_top_comments_per_post
         self.seen_comment_ids = set()
+        self.posts_comments_counts = {}
         
         self.cookies = []
         self.csrf_token: str | None = None
@@ -304,7 +305,7 @@ class Reddrix:
                 self.cookies_last_accessed_at = time.time()
             else:
                 cookie_refresh_successful = True
-                self.log("COOKIE REFRESH SUCESSFUL")
+                self.log("COOKIE REFRESH SUCCESSFUL")
                 self.cookies_last_accessed_at = time.time()
                 break
         
@@ -547,14 +548,15 @@ class Reddrix:
                 data = await res.text()
                 return data   
     
-    async def fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0) -> None:
+    async def fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0, post_id: str=None) -> None:
         """Fetches the post details (for the initial page) and comments."""
+        
         if "/comments/" in url and initial_page:
+            post_id = url.split("/comments/")[-1].split("/")[0]
+            self.posts_comments_counts[post_id] = {"total": 0, "top": 0}
             url = url.split("/comments/")[0] + "/comments/" + "/".join(quote(unquote(item)) for item in url.split("/comments/")[-1].split("/"))
         
         if self.is_running:
-            fetched_comments_count = 0
-            fetched_top_comments_count = 0
             more = []
             
             async with self.page_semaphore:
@@ -588,7 +590,7 @@ class Reddrix:
                 return
             
             for comment in comments:
-                if fetched_comments_count >= self.max_comments_per_post:
+                if self.posts_comments_counts[post_id]["total"] >= self.max_comments_per_post:
                     break
                 
                 if comment["thingid"] not in self.seen_comment_ids:
@@ -605,14 +607,14 @@ class Reddrix:
                 
                 if int(comment["depth"]) <= self.max_comments_depth:
                     if int(comment["depth"]) == 0:
-                        if fetched_comments_count < self.max_comments_per_post and fetched_top_comments_count < self.max_top_comments_per_post:
+                        if self.posts_comments_counts[post_id]["total"] < self.max_comments_per_post and self.posts_comments_counts[post_id]["top"] < self.max_top_comments_per_post:
                             await self.items_queue.put(comment)
-                            fetched_comments_count += 1
-                            fetched_top_comments_count += 1
+                            self.posts_comments_counts[post_id]["total"] += 1
+                            self.posts_comments_counts[post_id]["top"] += 1
                     else:
-                        if fetched_comments_count < self.max_comments_per_post:
+                        if self.posts_comments_counts[post_id]["total"] < self.max_comments_per_post:
                             await self.items_queue.put(comment)
-                            fetched_comments_count += 1
+                            self.posts_comments_counts[post_id]["total"] += 1
             
             children_comments_elements = soup.select('#comment-children > faceplate-partial[slot="children"]')
             children_comments_urls_and_cursors: list[tuple[str]] = []
@@ -625,7 +627,7 @@ class Reddrix:
             
             
             for item in children_comments_urls_and_cursors:
-                more.append(asyncio.create_task(self.fetch_post(url=item[0], cursor=item[1])))
+                more.append(asyncio.create_task(self.fetch_post(url=item[0], cursor=item[1], post_id=post_id)))
             
             # Simulating single-thread comment pages visits
             single_thread_children_els = soup.select('div.fold-more:not(.hidden) a.more-comments-link')
@@ -633,7 +635,7 @@ class Reddrix:
                 parent_comment = el.find_parent("shreddit-comment")
                 depth_offset_ = int(parent_comment["depth"])
                 children_url = "https://www.reddit.com" + unescape(el.get("href"))
-                more.append(asyncio.create_task(self.fetch_post(children_url, depth_offset=depth_offset_)))
+                more.append(asyncio.create_task(self.fetch_post(children_url, depth_offset=depth_offset_, post_id=post_id)))
             
             
             # Simulating the automatic scroll more comments loading
@@ -642,7 +644,7 @@ class Reddrix:
                 cursor_el = automatic_more_comments_element.select_one('input[name="cursor"]')
                 cursor_val = cursor_el["value"]
                 automatic_more_comments_url = "https://www.reddit.com" + unescape(automatic_more_comments_element.get("src"))
-                more.append(asyncio.create_task(self.fetch_post(automatic_more_comments_url, cursor=cursor_val)))
+                more.append(asyncio.create_task(self.fetch_post(automatic_more_comments_url, cursor=cursor_val, post_id=post_id)))
             
             # Simulating the manual more comments button if needed
             faceplate_partials_elements = soup.select('faceplate-partial.more-comments-partial[loading="action"]')
@@ -655,7 +657,7 @@ class Reddrix:
                 manual_more_comments_url = "https://www.reddit.com" + unescape(manual_more_comments_element.get("src"))
                 cursor_el = manual_more_comments_element.select_one('input[name="cursor"]')
                 cursor_val = cursor_el["value"]
-                more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val)))
+                more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val, post_id=post_id)))
             
             # Waiting for all comments to finish for the post
             if more:
