@@ -189,6 +189,7 @@ class Reddrix:
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless=True,
                     humanize=True,
+                    fingerprint_preset=True,
                     proxy={
                         "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
                         "username": parsed_url.username,
@@ -268,6 +269,7 @@ class Reddrix:
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless=True,
                     humanize=True,
+                    fingerprint_preset=True,
                     proxy={
                         "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
                         "username": parsed_url.username,
@@ -302,6 +304,7 @@ class Reddrix:
                 self.cookies_last_accessed_at = time.time()
             else:
                 cookie_refresh_successful = True
+                self.log("COOKIE REFRESH SUCESSFUL")
                 self.cookies_last_accessed_at = time.time()
                 break
         
@@ -624,7 +627,8 @@ class Reddrix:
             for item in children_comments_urls_and_cursors:
                 more.append(asyncio.create_task(self.fetch_post(url=item[0], cursor=item[1])))
             
-            single_thread_children_els = soup.select('#comment-children > a[slot="children"]')
+            # Simulating single-thread comment pages visits
+            single_thread_children_els = soup.select('div.fold-more:not(.hidden) a.more-comments-link')
             for el in single_thread_children_els:
                 parent_comment = el.find_parent("shreddit-comment")
                 depth_offset_ = int(parent_comment["depth"])
@@ -649,10 +653,9 @@ class Reddrix:
             
             if manual_more_comments_element:
                 manual_more_comments_url = "https://www.reddit.com" + unescape(manual_more_comments_element.get("src"))
-                if "rootComment" in manual_more_comments_url:
-                    cursor_el = manual_more_comments_element.select_one('input[name="cursor"]')
-                    cursor_val = cursor_el["value"]
-                    more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val)))
+                cursor_el = manual_more_comments_element.select_one('input[name="cursor"]')
+                cursor_val = cursor_el["value"]
+                more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val)))
             
             # Waiting for all comments to finish for the post
             if more:
