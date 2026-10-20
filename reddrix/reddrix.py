@@ -1,6 +1,6 @@
+from playwright.async_api import TimeoutError as PlaywrightTimeoutError, Error, Browser, BrowserContext, Page
 from .exceptions import AntiBotBlockError, FatalAntiBotBlockError, NotInitializedError, InvalidRequestError
 from wreq.exceptions import StatusError, TimeoutError as wTimeoutError, BuilderError
-from playwright.async_api import TimeoutError as PlaywrightTimeoutError, Error
 from wreq import Cookie, Jar, Client, Proxy, SameSite, redirect
 from urllib.parse import urlencode, urlparse, quote, unquote
 from wreq.emulation import Emulation, Profile, Platform
@@ -14,8 +14,10 @@ from functools import wraps
 from platform import system
 from typing import Literal
 from html import unescape
+from asyncio import Task
 import asyncio
 import random
+import json
 import time
 
 
@@ -79,6 +81,7 @@ class Reddrix:
     def __init__(
         self,
         mode: Literal["standard", "keyword_search"]="standard",
+        stealth: Literal["adaptive", True, False]="adaptive",
         max_results: int=999999,
         max_posts_per_collection: int=999999,
         sort: Literal["default", "new", "hot", "top_all_time", "top_past_hour", "top_today", "top_past_week", "top_past_month", "top_past_year"]="default",
@@ -93,6 +96,17 @@ class Reddrix:
         proxies: list[str]=[],
         verbose: bool=False
     ):  
+        if stealth == "adaptive":
+            if include_comments:
+                self.stealth = True
+            else:
+                self.stealth = False
+        else:
+            if stealth in [True, False]:
+                self.stealth = stealth
+            else:
+                self.stealth = "adaptive"
+        
         self.mode = mode
         self.max_results = max_results
         self.max_posts_per_collection = max_posts_per_collection
@@ -115,6 +129,10 @@ class Reddrix:
         self.proxies = proxies
         self.is_verbose = verbose
         self.used_proxies = set()
+        self.camoufox: AsyncCamoufox | None = None
+        self.browser: Browser | None = None
+        self.context: BrowserContext | None = None
+        self.page: Page | None = None
         self.client: Client | None = None
         self.started = False
         self.cookie_renewal_in_progress = False
@@ -123,6 +141,7 @@ class Reddrix:
         self.request_semaphore = asyncio.Semaphore(10)
         self.items_queue = asyncio.Queue(maxsize=1000)
         self.is_running = True
+        self.interaction_task: Task | None = None
     
     async def start(self):
         return await self.__aenter__()
@@ -185,8 +204,7 @@ class Reddrix:
             try:
                 proxy_url = self.new_proxy_url()
                 parsed_url = urlparse(proxy_url)
-
-                async with AsyncCamoufox(
+                self.camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless=True,
                     humanize=True,
@@ -197,29 +215,37 @@ class Reddrix:
                         "password": parsed_url.password
                     } if proxy_url else None,
                     geoip=True if proxy_url else False
-                ) as browser:
-                    context = await browser.new_context()
-                    page = await context.new_page()
-                    
-                    await page.goto(COOKIE_URL)
-                    login_btn = page.locator("#login-button")
-                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
-                    self.cookies = await context.cookies()
-                
-                self.fill_cookie_jar()
-                self.client = Client(
-                    emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
-                    timeout=timedelta(seconds=7),
-                    cookie_provider=self.cookie_jar,
-                    proxies=[Proxy.all(proxy_url)] if proxy_url else [],
-                    redirect=redirect.Policy.limited(5)
                 )
+                self.browser = await self.camoufox.__aenter__()
+                self.context = await self.browser.new_context()
+                self.page = await self.context.new_page()
+                
+                await self.page.goto(COOKIE_URL)
+                login_btn = self.page.locator("#login-button")
+                
+                if self.stealth:
+                    await login_btn.hover()
+                    await asyncio.sleep(1.5)
+                    self.interaction_task = asyncio.create_task(self.interact_naturally_with_reddit())
+                else:
+                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
+                    self.cookies = await self.context.cookies()
+                    self.fill_cookie_jar()
+                    self.client = Client(
+                        emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
+                        timeout=timedelta(seconds=7),
+                        cookie_provider=self.cookie_jar,
+                        proxies=[Proxy.all(proxy_url)] if proxy_url else [],
+                        redirect=redirect.Policy.limited(5)
+                    )
+                    await self.camoufox.__aexit__(None, None, None)
                 
                 self.started = True
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
                     self.client.close()
+                    await self.camoufox.__aexit__(None, None, None)
                     self.cookie_jar.clear()
                 except AttributeError:
                     pass
@@ -240,6 +266,7 @@ class Reddrix:
     async def __aexit__(self, exc_type, exc, tb):
         try:
             self.client.close()
+            await self.camoufox.__aexit__(None, None, None)
             self.cookie_jar.clear()
         except AttributeError:
             pass
@@ -256,6 +283,7 @@ class Reddrix:
         
         try:
             self.client.close()
+            await self.camoufox.__aexit__(None, None, None)
             self.cookie_jar.clear()
         except AttributeError:
             pass
@@ -266,7 +294,7 @@ class Reddrix:
                 proxy_url = self.new_proxy_url()
                 parsed_url = urlparse(proxy_url)
                 
-                async with AsyncCamoufox(
+                self.camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless=True,
                     humanize=True,
@@ -277,27 +305,35 @@ class Reddrix:
                         "password": parsed_url.password
                     } if proxy_url else None,
                     geoip=True if proxy_url else False
-                ) as browser:
-                    context = await browser.new_context()
-                    page = await context.new_page()
-                    
-                    await page.goto(COOKIE_URL)
-                    login_btn = page.locator("#login-button")
-                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
-                    self.cookies = await context.cookies()
-                
-                self.fill_cookie_jar()
-                self.client = Client(
-                    emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
-                    timeout=timedelta(seconds=7),
-                    cookie_provider=self.cookie_jar,
-                    proxies=[Proxy.all(proxy_url)] if proxy_url else [],
-                    redirect=redirect.Policy.limited(5)
                 )
+                self.browser = await self.camoufox.__aenter__()
+                self.context = await self.browser.new_context()
+                self.page = await self.context.new_page()
+                
+                await self.page.goto(COOKIE_URL)
+                login_btn = self.page.locator("#login-button")
+                
+                if self.stealth:
+                    await login_btn.hover()
+                    await asyncio.sleep(1.5)
+                    self.interaction_task = asyncio.create_task(self.interact_naturally_with_reddit())
+                else:
+                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
+                    self.cookies = await self.context.cookies()
+                    self.fill_cookie_jar()
+                    self.client = Client(
+                        emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
+                        timeout=timedelta(seconds=7),
+                        cookie_provider=self.cookie_jar,
+                        proxies=[Proxy.all(proxy_url)] if proxy_url else [],
+                        redirect=redirect.Policy.limited(5)
+                    )
+                    await self.camoufox.__aexit__(None, None, None)
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"COOKIE REFRESH ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
                     self.client.close()
+                    await self.camoufox.__aexit__(None, None, None)
                     self.cookie_jar.clear()
                 except AttributeError:
                     pass
@@ -313,6 +349,25 @@ class Reddrix:
             raise FatalAntiBotBlockError(f"FAILED TO REFRESH COOKIES AFTER {MAX_COOKIE_RETRIES} ATTEMPTS.")
         
         self.cookie_renewal_in_progress = False
+    
+    async def interact_naturally_with_reddit(self):
+        """Human-like behavior for long-lived sessions (for stealth mode only)."""
+        
+        buttons = [
+            "#login-button",
+            "#signup-button",
+            'button[data-testid="create-post"]',
+            ".join-btn",
+            "#expand-user-drawer-button"
+        ]
+        while True:
+            try:
+                button_selector = random.choice(buttons)
+                button = self.page.locator(button_selector)
+                await button.hover()
+                await asyncio.sleep(random.uniform(0.5, 5))
+            except (TargetClosedError, PlaywrightTimeoutError, Error):
+                continue
     
     def log(self, msg: str=None, level: Literal["info", "warning", "error"]="info"):
         if msg and self.is_verbose:
@@ -499,28 +554,52 @@ class Reddrix:
             while self.cookie_renewal_in_progress:
                 await asyncio.sleep(0.07)
             
-            try:
-                if form_data:
-                    res = await self.client.post(url, form=form_data)
-                elif json_data:
-                    res = await self.client.post(url, json=json_data)
-                else:
-                    raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
-                
-                status_code = res.status.as_int()
-                res.raise_for_status()
-            except StatusError:
-                if status_code == 404:
+            if not self.stealth:
+                try:
+                    if form_data:
+                        res = await self.client.post(url, form=form_data)
+                    elif json_data:
+                        res = await self.client.post(url, json=json_data)
+                    else:
+                        raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
+                    
+                    status_code = res.status.as_int()
+                    res.raise_for_status()
+                except StatusError:
+                    if status_code == 404:
+                        return None
+                    else:
+                        raise AntiBotBlockError
+                except wTimeoutError:
+                    raise AntiBotBlockError
+                except BuilderError:
                     return None
                 else:
-                    raise AntiBotBlockError
-            except wTimeoutError:
-                raise AntiBotBlockError
-            except BuilderError:
-                return None
+                    data = await res.text()
+                    return data  
             else:
-                data = await res.text()
-                return data  
+                try:
+                    if form_data:
+                        js_expression = r'async (url) => {const formData = new URLSearchParams(FORM_DATA); const res = await fetch(url, {method: "POST", credentials: "include", body: formData}); return [await res.text(), res.status];}'
+                        js_expression = js_expression.replace("FORM_DATA", json.dumps(form_data))
+                    elif json_data:
+                        js_expression = r'async (url) => {const res = await fetch(url, {method: "POST", credentials: "include", body: JSON.stringify(JSON_DATA)}); return [await res.text(), res.status];}'
+                        js_expression = js_expression.replace("JSON_DATA", json.dumps(json_data))
+                    else:
+                        raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
+                    
+                    data, status_code = await self.page.evaluate(js_expression, url)
+                    if status_code >= 400:
+                        if status_code == 404:
+                            return None
+                        else:
+                            raise AntiBotBlockError
+                except Exception:
+                    raise AntiBotBlockError
+                else:
+                    return data
+    
+                
     
     @auto_retry(max_attempts=5)
     async def get(self, url: str, params: dict={}) -> str | None:
@@ -531,22 +610,35 @@ class Reddrix:
             while self.cookie_renewal_in_progress:
                 await asyncio.sleep(0.07)
             
-            try:
-                res = await self.client.get(url)
-                status_code = res.status.as_int()
-                res.raise_for_status()
-            except StatusError:
-                if status_code == 404:
+            if not self.stealth:
+                try:
+                    res = await self.client.get(url)
+                    status_code = res.status.as_int()
+                    res.raise_for_status()
+                except StatusError:
+                    if status_code == 404:
+                        return None
+                    else:
+                        raise AntiBotBlockError
+                except wTimeoutError:
+                    raise AntiBotBlockError
+                except BuilderError:
                     return None
                 else:
-                    raise AntiBotBlockError
-            except wTimeoutError:
-                raise AntiBotBlockError
-            except BuilderError:
-                return None
+                    data = await res.text()
+                    return data
             else:
-                data = await res.text()
-                return data   
+                try:
+                    data, status_code = await self.page.evaluate(r'async (url) => {const res = await fetch(url, {credentials: "include"}); return [await res.text(), res.status];}', url)
+                    if status_code >= 400:
+                        if status_code == 404:
+                            return None
+                        else:
+                            raise AntiBotBlockError
+                except Exception:
+                    raise AntiBotBlockError
+                else:
+                    return data
     
     async def fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0, post_id: str=None) -> None:
         """Fetches the post details (for the initial page) and comments."""
@@ -854,4 +946,10 @@ class Reddrix:
                     break
         finally:
             self.is_running = False
-            runner.cancel()
+            
+            try:
+                self.interaction_task.cancel()
+                runner.cancel()
+                await self.camoufox.__aexit__(None, None, None)
+            except (AttributeError, ValueError):
+                pass
