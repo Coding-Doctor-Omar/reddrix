@@ -33,6 +33,9 @@
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments-options">Reddrix Arguments Options</a>
 </p>
 
+> [!TIP]
+> Reddrix works best with the `stealth=True` argument (see below). This argument is the default argument, unless you choose to switch it off.
+
 ## Installation
 
 ```bash
