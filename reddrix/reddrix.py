@@ -277,6 +277,9 @@ class Reddrix:
         except AttributeError:
             pass
         
+        if self.interaction_task:
+            self.interaction_task.cancel()
+        
         self.started = False
     
     async def refresh_cookies(self):
@@ -376,7 +379,7 @@ class Reddrix:
                 button = self.page.locator(button_selector)
                 await button.hover()
                 await asyncio.sleep(random.uniform(0.5, 5))
-            except (TargetClosedError, PlaywrightTimeoutError, Error):
+            except Exception:
                 await asyncio.sleep(0.3)
                 continue
     
