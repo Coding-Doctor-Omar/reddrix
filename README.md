@@ -36,7 +36,7 @@
 </p>
 
 > [!TIP]
-> Reddrix works best with the `stealth=True` argument (see below) . This argument is the default argument, unless you choose to switch it off. Consider also adding a list of proxy URLs if you plan to use Reddrix frequently since Reddit may start rate limiting your IP address.
+> Reddrix works best with the `stealth=True` argument (see below) . This argument is the default argument, unless you choose to switch it off. Consider also adding a list of proxy URLs (see below) if you plan to use Reddrix frequently since Reddit may start rate limiting your IP address.
 
 ## Installation
 
