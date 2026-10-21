@@ -1,6 +1,7 @@
 ## v1.2.1 (Oct. 21, 2026)
 
 1. Remove false errors that occasional appear at the end of runs.
+2. Set `True` as the default argument for `stealth`.
 
 ## v1.2.0 (Oct. 20, 2026)
 
