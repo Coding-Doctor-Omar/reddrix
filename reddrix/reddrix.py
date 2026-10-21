@@ -81,7 +81,7 @@ class Reddrix:
     def __init__(
         self,
         mode: Literal["standard", "keyword_search"]="standard",
-        stealth: Literal["adaptive", True, False]="adaptive",
+        stealth: Literal["adaptive", True, False]=True,
         max_results: int=999999,
         max_posts_per_collection: int=999999,
         sort: Literal["default", "new", "hot", "top_all_time", "top_past_hour", "top_today", "top_past_week", "top_past_month", "top_past_year"]="default",
