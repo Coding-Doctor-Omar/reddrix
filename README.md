@@ -28,6 +28,8 @@
 
 > If this repo is useful to you or saved you time, consider starring ⭐ it to support me and help others find it and have an easier time scraping Reddit ❤️.
 
+> Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/reddit-scraper-pro) on Apify.
+
 <p align="center">
     <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments">Reddrix Arguments</a>
