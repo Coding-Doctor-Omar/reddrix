@@ -224,7 +224,7 @@ class Reddrix:
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
-                    await login_btn.hover()
+                    await login_btn.hover(timeout=15000)
                     await asyncio.sleep(1.5)
                     self.cookies = await self.context.cookies()
                     
@@ -323,7 +323,7 @@ class Reddrix:
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
-                    await login_btn.hover()
+                    await login_btn.hover(timeout=15000)
                     await asyncio.sleep(1.5)
                     self.cookies = await self.context.cookies()
                     
