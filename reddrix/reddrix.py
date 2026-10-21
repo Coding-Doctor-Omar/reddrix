@@ -51,7 +51,7 @@ def auto_retry(max_attempts: int):
             url = kwargs.get("url") or args[1]
             scraper: Reddrix = args[0]
             
-            if not scraper.started:
+            if not scraper.started and scraper.is_running:
                 raise NotInitializedError("Scraper is not initialized. Initialize the scraper with the context manager or the start() and stop() methods first.")
 
             for attempt in range(1, max_attempts + 1):
