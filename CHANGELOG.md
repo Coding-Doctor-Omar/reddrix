@@ -1,3 +1,7 @@
+## v1.2.5 (Oct. 21, 2026)
+
+1. Add 15-second timeouts for both initialization and cookie refreshes when the steal mode is active.
+
 ## v1.2.4 (Oct. 21, 2026)
 
 1. Minor bug fixes.
