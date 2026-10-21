@@ -31,12 +31,12 @@
 > Need a hosted version? Check [Reddit Scraper Pro](https://apify.com/coding-doctor-omar/reddit-scraper-pro) on Apify.
 
 <p align="center">
-    <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#features">Features</a> • 
+    <a href="#installation">Installation</a> • <a href="#quickstart">Quickstart</a> • <a href="#stealth-mode">Stealth Mode</a> • <a href="#features">Features</a> • 
     <a href="#output-dataset">Output Dataset</a> • <a href="#reddrix-arguments">Reddrix Arguments</a>
 </p>
 
 > [!TIP]
-> Reddrix works best with the `stealth=True` argument (see below) . This argument is the default argument, unless you choose to switch it off. Consider also adding a list of proxy URLs (see below) if you plan to use Reddrix frequently since Reddit may start rate limiting your IP address.
+> Reddrix works best with the `stealth=True` argument (see [below](#stealth-mode)) . This argument is the default argument, unless you choose to switch it off.
 
 ## Installation
 
@@ -179,11 +179,23 @@ if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-**Stealth Mode:**
+## Stealth Mode
 
-By default, `stealth` is set to `True`. You can also set it to `adaptive`, which means Reddrix will auto-activate it only when scraping comments. To explicitly make it active all times, set it to `True` (default behavior). When this mode is active, Reddrix will send the same internal API requests it sends with the wreq client but directly from within the Camoufox browser context using JavaScript fetch. While these requests are being fired in the background, Reddrix will make human-like, random mouse hovering in the page. The key **advantage** of this strategy is that it is much more undetectable because it avoids the fingerprint drift that occurs when harvesting cookies from a browser and using them in another HTTP client. Also, the majority of the scraping speed is preserved because the browser isn't really waiting for navigation or clicking elements aside from the random mouse movements it is doing in the home page. The **disadvantage** is that the stealth mode is resource-heavy.
+The stealth mode has 3 options: `True`, `False`, and `adaptive`.
 
-To explicitly disable this mode, set `stealth` to `False`. This way, Camoufox will only be used as a cookie harvester, while wreq will use these cookies to make all the HTTP requests. The **advantage** is that this setup is much less resource-intensive, while the **disadvantage** is that it gets detected quickly when scraping lots of comments.
+**Why is it needed?**
+
+Reddrix no longer relies on Reddit's legacy JSON endpoints, since these endpoints are now behind login walls. Instead, it scrapes New Reddit's HTML and internal API endpoints, and these are protected by Cloudflare and reCaptcha Enterprise.
+
+**How It Works:**
+
+When stealth is set to `True` (the default option), Reddrix will open Camoufox, navigate to an empty sub page to harvest cookies, then will start scraping by sending direct HTTP requests to Reddit's internal API endpoints from within the same Camoufox browser context using JavaScript fetch (no navigation, no clicking). While firing these requests, Reddrix will initialize randomized mouse movements with random delays and human-like patterns in the loaded page. This approach avoids the fingerprint drift between the browser and the wreq client by sending the HTTP requests from the same browser. Additionally, the random mouse movements constantly generate reCaptcha Enterprise clearances, ensuring the session remains trusted and lasts a long time while still preserving most of the scraping speed.
+
+**Disadvantage:**
+
+The disadvantage is heavy resource usage.
+
+*If this option is set to `adaptive`, it will only be activated when `include_comments` is set to `True`, since comments are often more protected by anti-bot measures.*
 
 Example Code:
 
