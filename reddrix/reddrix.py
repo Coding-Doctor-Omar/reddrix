@@ -226,9 +226,15 @@ class Reddrix:
                 if self.stealth:
                     await login_btn.hover()
                     await asyncio.sleep(1.5)
+                    self.cookies = await self.context.cookies()
+                    
+                    for c in self.cookies:
+                        if c["name"] == "csrf_token":
+                            self.csrf_token = c["value"]
+                    
                     self.interaction_task = asyncio.create_task(self.interact_naturally_with_reddit())
                 else:
-                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
+                    await login_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.cookies = await self.context.cookies()
                     self.fill_cookie_jar()
                     self.client = Client(
@@ -316,9 +322,13 @@ class Reddrix:
                 if self.stealth:
                     await login_btn.hover()
                     await asyncio.sleep(1.5)
-                    self.interaction_task = asyncio.create_task(self.interact_naturally_with_reddit())
+                    self.cookies = await self.context.cookies()
+                    
+                    for c in self.cookies:
+                        if c["name"] == "csrf_token":
+                            self.csrf_token = c["value"]
                 else:
-                    await login_btn.click(timeout=15000) # Ensure ALL cookies are harvested
+                    await login_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.cookies = await self.context.cookies()
                     self.fill_cookie_jar()
                     self.client = Client(
@@ -367,6 +377,7 @@ class Reddrix:
                 await button.hover()
                 await asyncio.sleep(random.uniform(0.5, 5))
             except (TargetClosedError, PlaywrightTimeoutError, Error):
+                await asyncio.sleep(0.3)
                 continue
     
     def log(self, msg: str=None, level: Literal["info", "warning", "error"]="info"):
@@ -948,8 +959,8 @@ class Reddrix:
             self.is_running = False
             
             try:
+                await self.camoufox.__aexit__(None, None, None)
                 self.interaction_task.cancel()
                 runner.cancel()
-                await self.camoufox.__aexit__(None, None, None)
             except (AttributeError, ValueError):
                 pass
