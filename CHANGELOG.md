@@ -1,3 +1,7 @@
+## v1.2.3 (Oct. 21, 2026)
+
+1. Minor bug fixes.
+
 ## v1.2.2 (Oct. 21, 2026)
 
 1. Remove false errors that occasional appear at the end of runs.
