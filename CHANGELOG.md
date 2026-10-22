@@ -1,7 +1,8 @@
 ## v1.2.7 (Oct. 23, 2026)
 
 1. Add virtual display support for Linux.
-2. 
+2. Add quick block detection for custom Reddit blocks.
+3. Fix a bug that caused the scraper to not close Camoufox when initialization attempts fail.
 
 ## v1.2.6 (Oct. 22, 2026)
 
