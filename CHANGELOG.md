@@ -1,3 +1,7 @@
+## v1.2.7 (Oct. 23, 2026)
+
+1. Add virtual display support for Linux and Docker.
+
 ## v1.2.6 (Oct. 22, 2026)
 
 1. Circumvent a new trivial Reddit anti-bot measure.

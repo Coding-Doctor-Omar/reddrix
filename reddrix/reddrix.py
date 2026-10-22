@@ -16,6 +16,7 @@ from typing import Literal
 from html import unescape
 from asyncio import Task
 import asyncio
+import shutil
 import random
 import json
 import time
@@ -206,7 +207,7 @@ class Reddrix:
                 parsed_url = urlparse(proxy_url)
                 self.camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
-                    headless=True,
+                    headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
                     fingerprint_preset=True,
                     proxy={
@@ -221,6 +222,18 @@ class Reddrix:
                 self.page = await self.context.new_page()
                 
                 await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
+                
+                # Fast block detection for custom Reddit blocking
+                try:
+                    await self.page.wait_for_url(lambda url: "solution" in url, timeout=3000)
+                except PlaywrightTimeoutError:
+                    pass
+                
+                await self.page.wait_for_load_state("domcontentloaded")
+                
+                if "blocked by network security" in (await self.page.content()).lower():
+                    raise ValueError
+                
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
@@ -250,8 +263,8 @@ class Reddrix:
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
-                    self.client.close()
                     await self.camoufox.__aexit__(None, None, None)
+                    self.client.close()
                     self.cookie_jar.clear()
                 except AttributeError:
                     pass
@@ -271,8 +284,8 @@ class Reddrix:
     
     async def __aexit__(self, exc_type, exc, tb):
         try:
-            self.client.close()
             await self.camoufox.__aexit__(None, None, None)
+            self.client.close()
             self.cookie_jar.clear()
         except AttributeError:
             pass
@@ -291,8 +304,8 @@ class Reddrix:
         self.log("REFRESHING COOKIES...")
         
         try:
-            self.client.close()
             await self.camoufox.__aexit__(None, None, None)
+            self.client.close()
             self.cookie_jar.clear()
         except AttributeError:
             pass
@@ -305,7 +318,7 @@ class Reddrix:
                 
                 self.camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
-                    headless=True,
+                    headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
                     fingerprint_preset=True,
                     proxy={
@@ -320,6 +333,18 @@ class Reddrix:
                 self.page = await self.context.new_page()
                 
                 await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
+                
+                # Fast block detection for custom Reddit blocking
+                try:
+                    await self.page.wait_for_url(lambda url: "solution" in url, timeout=3000)
+                except PlaywrightTimeoutError:
+                    pass
+                
+                await self.page.wait_for_load_state("domcontentloaded")
+                
+                if "blocked by network security" in (await self.page.content()).lower():
+                    raise ValueError
+                
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
@@ -345,8 +370,8 @@ class Reddrix:
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"COOKIE REFRESH ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
-                    self.client.close()
                     await self.camoufox.__aexit__(None, None, None)
+                    self.client.close()
                     self.cookie_jar.clear()
                 except AttributeError:
                     pass
