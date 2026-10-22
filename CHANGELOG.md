@@ -1,4 +1,4 @@
-## v1.2.7 (Oct. 23, 2026)
+## v1.2.7 (Oct. 22, 2026)
 
 1. Add virtual display support for Linux.
 2. Add quick block detection for custom Reddit blocks.
