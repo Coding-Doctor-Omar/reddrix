@@ -42,7 +42,7 @@
 > ## Virtual display (Linux only)
 >
 > On Linux machines WITHOUT A SCREEN (servers, WSL, CI, Docker), the scraper needs
-> Xvfb to run a virtual display (stealth mode only). Install it with your package manager:
+> Xvfb to run a virtual display. Install it with your package manager:
 
 | Distro | Command |
 |---|---|
