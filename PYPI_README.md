@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.6-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.7-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -35,6 +35,34 @@
 
 > [!TIP]
 > Reddrix works best with the `stealth=True` argument (see below). This argument is the default argument, unless you choose to switch it off.
+
+> [!WARNING]
+> ## Virtual display (Linux only)
+>
+> On Linux machines WITHOUT A SCREEN (servers, WSL, CI, Docker), the scraper needs
+> Xvfb to run a virtual display (stealth mode only). Install it with your package manager:
+
+| Distro | Command |
+|---|---|
+| Debian / Ubuntu | `sudo apt update && sudo apt install -y xvfb` |
+| Fedora / RHEL / CentOS | `sudo dnf install -y xorg-x11-server-Xvfb` |
+| Arch | `sudo pacman -S xorg-server-xvfb` |
+| Alpine | `apk add xvfb` |
+
+Check that it's installed:
+
+```bash
+which Xvfb
+```
+
+**Docker:** add this to your Dockerfile:
+
+```dockerfile
+RUN apt-get update && apt-get install -y --no-install-recommends xvfb \
+    && rm -rf /var/lib/apt/lists/*
+```
+
+**macOS and Windows:** nothing to install. Xvfb is not needed.
 
 ## Installation
 
