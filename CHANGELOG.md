@@ -1,6 +1,7 @@
 ## v1.2.7 (Oct. 23, 2026)
 
-1. Add virtual display support for Linux and Docker.
+1. Add virtual display support for Linux.
+2. 
 
 ## v1.2.6 (Oct. 22, 2026)
 
