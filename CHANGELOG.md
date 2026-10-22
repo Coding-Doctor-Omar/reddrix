@@ -1,3 +1,7 @@
+## v1.2.8 (Oct. 22, 2026)
+
+1. Minor bug fixes
+
 ## v1.2.7 (Oct. 22, 2026)
 
 1. Add virtual display support for Linux.

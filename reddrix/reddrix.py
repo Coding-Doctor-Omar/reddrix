@@ -22,7 +22,7 @@ import json
 import time
 
 
-COOKIE_URL = "https://www.reddit.com/r/kasralainy" # Empty sub page for low bandwidth when obtaining cookies.
+COOKIE_URL = "https://www.reddit.com/r/webscraping"
 
 MAX_COOKIE_RETRIES = 5
 CAMOUFOX_PLATFORMS = {
@@ -66,7 +66,7 @@ def auto_retry(max_attempts: int):
 
                         async with COOKIE_LOCK:
                             if current_time - scraper.cookies_last_accessed_at >= 15:
-                                await scraper.refresh_cookies()
+                                await scraper.__refresh_cookies()
 
                         await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
                     else:
@@ -99,50 +99,50 @@ class Reddrix:
     ):  
         if stealth == "adaptive":
             if include_comments:
-                self.stealth = True
+                self.__stealth = True
             else:
-                self.stealth = False
+                self.__stealth = False
         else:
             if stealth in [True, False]:
-                self.stealth = stealth
+                self.__stealth = stealth
             else:
-                self.stealth = "adaptive"
+                self.__stealth = "adaptive"
         
-        self.mode = mode
-        self.max_results = max_results
-        self.max_posts_per_collection = max_posts_per_collection
-        self.sort = sort if "top" not in sort else "top"
-        self.time_frame = TIME_FRAMES.get(sort) or ""
-        self.subreddit_urls = subreddit_urls
-        self.post_urls = post_urls
-        self.profile_urls = profile_urls
-        self.query = query
-        self.include_comments = include_comments
-        self.max_comments_depth = max_comments_depth
-        self.max_comments_per_post = max_comments_per_post
-        self.max_top_comments_per_post = max_top_comments_per_post
-        self.seen_comment_ids = set()
-        self.posts_comments_counts = {}
+        self.__mode = mode
+        self.__max_results = max_results
+        self.__max_posts_per_collection = max_posts_per_collection
+        self.__sort = sort if "top" not in sort else "top"
+        self.__time_frame = TIME_FRAMES.get(sort) or ""
+        self.__subreddit_urls = subreddit_urls
+        self.__post_urls = post_urls
+        self.__profile_urls = profile_urls
+        self.__query = query
+        self.__include_comments = include_comments
+        self.__max_comments_depth = max_comments_depth
+        self.__max_comments_per_post = max_comments_per_post
+        self.__max_top_comments_per_post = max_top_comments_per_post
+        self.__seen_comment_ids = set()
+        self.__posts_comments_counts = {}
         
-        self.cookies = []
-        self.csrf_token: str | None = None
-        self.cookie_jar = Jar()
-        self.proxies = proxies
-        self.is_verbose = verbose
-        self.used_proxies = set()
-        self.camoufox: AsyncCamoufox | None = None
-        self.browser: Browser | None = None
-        self.context: BrowserContext | None = None
-        self.page: Page | None = None
-        self.client: Client | None = None
+        self.__cookies = []
+        self.__csrf_token: str | None = None
+        self.__cookie_jar = Jar()
+        self.__proxies = proxies
+        self.__is_verbose = verbose
+        self.__used_proxies = set()
+        self.__camoufox: AsyncCamoufox | None = None
+        self.__browser: Browser | None = None
+        self.__context: BrowserContext | None = None
+        self.__page: Page | None = None
+        self.__client: Client | None = None
         self.started = False
         self.cookie_renewal_in_progress = False
         self.cookies_last_accessed_at = 0.0
-        self.page_semaphore = asyncio.Semaphore(10)
-        self.request_semaphore = asyncio.Semaphore(10)
-        self.items_queue = asyncio.Queue(maxsize=1000)
+        self.__page_semaphore = asyncio.Semaphore(10)
+        self.__request_semaphore = asyncio.Semaphore(10)
+        self.__items_queue = asyncio.Queue(maxsize=1000)
         self.is_running = True
-        self.interaction_task: Task | None = None
+        self.__interaction_task: Task | None = None
     
     async def start(self):
         return await self.__aenter__()
@@ -153,29 +153,29 @@ class Reddrix:
     def new_proxy_url(self) -> str:
         """Generates a new proxy url from the list (if provided)."""
         
-        if not self.proxies:
+        if not self.__proxies:
             return ""
         
         proxy_to_be_used = ""
-        for proxy in self.proxies:
-            if proxy not in self.used_proxies:
-                self.used_proxies.add(proxy)
+        for proxy in self.__proxies:
+            if proxy not in self.__used_proxies:
+                self.__used_proxies.add(proxy)
                 proxy_to_be_used = proxy
                 break
         
         if not proxy_to_be_used:
-            self.used_proxies.clear()
-            proxy_to_be_used = random.choice(self.proxies)
-            self.used_proxies.add(proxy_to_be_used)
+            self.__used_proxies.clear()
+            proxy_to_be_used = random.choice(self.__proxies)
+            self.__used_proxies.add(proxy_to_be_used)
         
         return proxy_to_be_used
     
-    def fill_cookie_jar(self):
+    def __fill_cookie_jar(self):
         """Fills the wreq client's cookie jar from the Camoufox browser context cookies."""
         
-        for c in self.cookies:
+        for c in self.__cookies:
             if c["name"] == "csrf_token":
-                self.csrf_token = c["value"]
+                self.__csrf_token = c["value"]
             
             if c["sameSite"] == "Lax":
                 same_site = SameSite.Lax
@@ -184,7 +184,7 @@ class Reddrix:
             else:
                 same_site = SameSite.Empty
             
-            self.cookie_jar.add(
+            self.__cookie_jar.add(
                 Cookie(
                     name=c["name"],
                     value=c["value"],
@@ -205,7 +205,7 @@ class Reddrix:
             try:
                 proxy_url = self.new_proxy_url()
                 parsed_url = urlparse(proxy_url)
-                self.camoufox = AsyncCamoufox(
+                self.__camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
@@ -217,55 +217,57 @@ class Reddrix:
                     } if proxy_url else None,
                     geoip=True if proxy_url else False
                 )
-                self.browser = await self.camoufox.__aenter__()
-                self.context = await self.browser.new_context()
-                self.page = await self.context.new_page()
+                self.__browser = await self.__camoufox.__aenter__()
+                self.__context = await self.__browser.new_context()
+                self.__page = await self.__context.new_page()
                 
-                await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
+                await self.__page.goto(COOKIE_URL, referer="https://www.google.com/")
                 
                 # Fast block detection for custom Reddit blocking
                 try:
-                    await self.page.wait_for_url(lambda url: "solution" in url, timeout=3000)
+                    await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
                 except PlaywrightTimeoutError:
                     pass
                 
-                await self.page.wait_for_load_state("domcontentloaded")
+                await self.__page.wait_for_load_state("domcontentloaded")
                 
-                if "blocked by network security" in (await self.page.content()).lower():
+                if "blocked by network security" in (await self.__page.content()).lower():
+                    raise ValueError
+                elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                login_btn = self.page.locator("#login-button")
+                wiki_btn = self.__page.locator('[noun="wiki"] > a')
                 
-                if self.stealth:
-                    await login_btn.hover(timeout=15000)
+                if self.__stealth:
+                    await wiki_btn.hover(timeout=20000)
                     await asyncio.sleep(1.5)
-                    self.cookies = await self.context.cookies()
+                    self.cookies = await self.__context.cookies()
                     
                     for c in self.cookies:
                         if c["name"] == "csrf_token":
                             self.csrf_token = c["value"]
                     
-                    self.interaction_task = asyncio.create_task(self.interact_naturally_with_reddit())
+                    self.__interaction_task = asyncio.create_task(self.__interact_naturally_with_reddit())
                 else:
-                    await login_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
-                    self.cookies = await self.context.cookies()
-                    self.fill_cookie_jar()
-                    self.client = Client(
+                    await wiki_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
+                    self.__cookies = await self.__context.cookies()
+                    self.__fill_cookie_jar()
+                    self.__client = Client(
                         emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
                         timeout=timedelta(seconds=7),
-                        cookie_provider=self.cookie_jar,
+                        cookie_provider=self.__cookie_jar,
                         proxies=[Proxy.all(proxy_url)] if proxy_url else [],
                         redirect=redirect.Policy.limited(5)
                     )
-                    await self.camoufox.__aexit__(None, None, None)
+                    await self.__camoufox.__aexit__(None, None, None)
                 
                 self.started = True
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
-                    await self.camoufox.__aexit__(None, None, None)
-                    self.client.close()
-                    self.cookie_jar.clear()
+                    await self.__camoufox.__aexit__(None, None, None)
+                    self.__client.close()
+                    self.__cookie_jar.clear()
                 except AttributeError:
                     pass
                 
@@ -284,18 +286,18 @@ class Reddrix:
     
     async def __aexit__(self, exc_type, exc, tb):
         try:
-            await self.camoufox.__aexit__(None, None, None)
-            self.client.close()
-            self.cookie_jar.clear()
+            await self.__camoufox.__aexit__(None, None, None)
+            self.__client.close()
+            self.__cookie_jar.clear()
         except AttributeError:
             pass
         
-        if self.interaction_task:
-            self.interaction_task.cancel()
+        if self.__interaction_task:
+            self.__interaction_task.cancel()
         
         self.started = False
     
-    async def refresh_cookies(self):
+    async def __refresh_cookies(self):
         if self.cookie_renewal_in_progress:
             return
         
@@ -304,9 +306,9 @@ class Reddrix:
         self.log("REFRESHING COOKIES...")
         
         try:
-            await self.camoufox.__aexit__(None, None, None)
-            self.client.close()
-            self.cookie_jar.clear()
+            await self.__camoufox.__aexit__(None, None, None)
+            self.__client.close()
+            self.__cookie_jar.clear()
         except AttributeError:
             pass
         
@@ -316,7 +318,7 @@ class Reddrix:
                 proxy_url = self.new_proxy_url()
                 parsed_url = urlparse(proxy_url)
                 
-                self.camoufox = AsyncCamoufox(
+                self.__camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
@@ -328,51 +330,53 @@ class Reddrix:
                     } if proxy_url else None,
                     geoip=True if proxy_url else False
                 )
-                self.browser = await self.camoufox.__aenter__()
-                self.context = await self.browser.new_context()
-                self.page = await self.context.new_page()
+                self.__browser = await self.__camoufox.__aenter__()
+                self.__context = await self.__browser.new_context()
+                self.__page = await self.__context.new_page()
                 
-                await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
+                await self.__page.goto(COOKIE_URL, referer="https://www.google.com/")
                 
                 # Fast block detection for custom Reddit blocking
                 try:
-                    await self.page.wait_for_url(lambda url: "solution" in url, timeout=3000)
+                    await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
                 except PlaywrightTimeoutError:
                     pass
                 
-                await self.page.wait_for_load_state("domcontentloaded")
+                await self.__page.wait_for_load_state("domcontentloaded")
                 
-                if "blocked by network security" in (await self.page.content()).lower():
+                if "blocked by network security" in (await self.__page.content()).lower():
+                    raise ValueError
+                elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                login_btn = self.page.locator("#login-button")
+                wiki_btn = self.__page.locator('[noun="wiki"] > a')
                 
-                if self.stealth:
-                    await login_btn.hover(timeout=15000)
+                if self.__stealth:
+                    await wiki_btn.hover(timeout=20000)
                     await asyncio.sleep(1.5)
-                    self.cookies = await self.context.cookies()
+                    self.cookies = await self.__context.cookies()
                     
                     for c in self.cookies:
                         if c["name"] == "csrf_token":
                             self.csrf_token = c["value"]
                 else:
-                    await login_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
-                    self.cookies = await self.context.cookies()
-                    self.fill_cookie_jar()
-                    self.client = Client(
+                    await wiki_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
+                    self.__cookies = await self.__context.cookies()
+                    self.__fill_cookie_jar()
+                    self.__client = Client(
                         emulation=Emulation(profile=Profile.Firefox152, platform=WREQ_PLATFORMS[system().lower()]),
                         timeout=timedelta(seconds=7),
-                        cookie_provider=self.cookie_jar,
+                        cookie_provider=self.__cookie_jar,
                         proxies=[Proxy.all(proxy_url)] if proxy_url else [],
                         redirect=redirect.Policy.limited(5)
                     )
-                    await self.camoufox.__aexit__(None, None, None)
+                    await self.__camoufox.__aexit__(None, None, None)
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
                 self.log(f"COOKIE REFRESH ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
-                    await self.camoufox.__aexit__(None, None, None)
-                    self.client.close()
-                    self.cookie_jar.clear()
+                    await self.__camoufox.__aexit__(None, None, None)
+                    self.__client.close()
+                    self.__cookie_jar.clear()
                 except AttributeError:
                     pass
                 
@@ -388,28 +392,26 @@ class Reddrix:
         
         self.cookie_renewal_in_progress = False
     
-    async def interact_naturally_with_reddit(self):
+    async def __interact_naturally_with_reddit(self):
         """Human-like behavior for long-lived sessions (for stealth mode only)."""
         
         buttons = [
-            "#login-button",
-            "#signup-button",
-            'button[data-testid="create-post"]',
-            ".join-btn",
-            "#expand-user-drawer-button"
+            '[noun="wiki"] > a',
+            '[noun="menu_click"] > a',
+            'a[slot="full-post-link"]'
         ]
         while True:
             try:
                 button_selector = random.choice(buttons)
-                button = self.page.locator(button_selector)
-                await button.hover()
+                button = await self.__page.locator(button_selector).all()
+                await random.choice(button).hover()
                 await asyncio.sleep(random.uniform(0.5, 5))
             except Exception:
                 await asyncio.sleep(0.3)
                 continue
     
     def log(self, msg: str=None, level: Literal["info", "warning", "error"]="info"):
-        if msg and self.is_verbose:
+        if msg and self.__is_verbose:
             now = datetime.fromtimestamp(time.time(), tz=timezone.utc).isoformat()
             print(f"{now} [reddrix] [{level.upper()}] {msg}", flush=True)
     
@@ -586,19 +588,19 @@ class Reddrix:
 
     @auto_retry(max_attempts=5)
     async def post(self, url: str, params: dict={}, json_data: dict={}, form_data: dict={}) -> str | None:
-        async with self.request_semaphore:
+        async with self.__request_semaphore:
             if params:
                 url += f"{'?' if '?' not in url else ''}{urlencode(params) if '?' not in url else f'&{urlencode(params)}'}"
             
             while self.cookie_renewal_in_progress:
                 await asyncio.sleep(0.07)
             
-            if not self.stealth:
+            if not self.__stealth:
                 try:
                     if form_data:
-                        res = await self.client.post(url, form=form_data)
+                        res = await self.__client.post(url, form=form_data)
                     elif json_data:
-                        res = await self.client.post(url, json=json_data)
+                        res = await self.__client.post(url, json=json_data)
                     else:
                         raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
                     
@@ -627,7 +629,7 @@ class Reddrix:
                     else:
                         raise InvalidRequestError("No JSON payload or form data provided in the POST request.")
                     
-                    data, status_code = await self.page.evaluate(js_expression, url)
+                    data, status_code = await self.__page.evaluate(js_expression, url)
                     if status_code >= 400:
                         if status_code == 404:
                             return None
@@ -642,16 +644,16 @@ class Reddrix:
     
     @auto_retry(max_attempts=5)
     async def get(self, url: str, params: dict={}) -> str | None:
-        async with self.request_semaphore:
+        async with self.__request_semaphore:
             if params:
                 url += f"{'?' if '?' not in url else ''}{urlencode(params) if '?' not in url else f'&{urlencode(params)}'}"
             
             while self.cookie_renewal_in_progress:
                 await asyncio.sleep(0.07)
             
-            if not self.stealth:
+            if not self.__stealth:
                 try:
-                    res = await self.client.get(url)
+                    res = await self.__client.get(url)
                     status_code = res.status.as_int()
                     res.raise_for_status()
                 except StatusError:
@@ -668,7 +670,7 @@ class Reddrix:
                     return data
             else:
                 try:
-                    data, status_code = await self.page.evaluate(r'async (url) => {const res = await fetch(url, {credentials: "include"}); return [await res.text(), res.status];}', url)
+                    data, status_code = await self.__page.evaluate(r'async (url) => {const res = await fetch(url, {credentials: "include"}); return [await res.text(), res.status];}', url)
                     if status_code >= 400:
                         if status_code == 404:
                             return None
@@ -679,24 +681,24 @@ class Reddrix:
                 else:
                     return data
     
-    async def fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0, post_id: str=None) -> None:
+    async def __fetch_post(self, url: str, cursor: str=None, initial_page: bool=False, depth_offset: int=0, post_id: str=None) -> None:
         """Fetches the post details (for the initial page) and comments."""
         
         if "/comments/" in url and initial_page:
             post_id = url.split("/comments/")[-1].split("/")[0]
-            self.posts_comments_counts[post_id] = {"total": 0, "top": 0}
+            self.__posts_comments_counts[post_id] = {"total": 0, "top": 0}
             url = url.split("/comments/")[0] + "/comments/" + "/".join(quote(unquote(item)) for item in url.split("/comments/")[-1].split("/"))
         
         if self.is_running:
             more = []
             
-            async with self.page_semaphore:
+            async with self.__page_semaphore:
                 await asyncio.sleep(random.uniform(0.5, 2)) # Random jitter
                 
                 if initial_page or not cursor:
                     page_data = await self.get(url)
                 else:
-                    form = {"csrf_token": self.csrf_token, "cursor": cursor}
+                    form = {"csrf_token": self.__csrf_token, "cursor": cursor}
                     page_data = await self.post(url, form_data=form)
 
             if not page_data and self.is_running:
@@ -713,39 +715,36 @@ class Reddrix:
                 if not post:
                     return
                 
-                await self.items_queue.put(post)
+                await self.__items_queue.put(post)
             
             comments = soup.select("shreddit-comment")
             
-            if not self.include_comments:
+            if not self.__include_comments:
                 return
             
             for comment in comments:
-                if self.posts_comments_counts[post_id]["total"] >= self.max_comments_per_post:
+                if self.__posts_comments_counts[post_id]["total"] >= self.__max_comments_per_post:
                     break
                 
-                if comment["thingid"] not in self.seen_comment_ids:
-                    self.seen_comment_ids.add(comment["thingid"])
+                if comment["thingid"] not in self.__seen_comment_ids:
+                    self.__seen_comment_ids.add(comment["thingid"])
                     comment["depth"] = str(int(comment["depth"]) + depth_offset)
                 else:
                     continue
                 
-                if int(comment["depth"]) > self.max_comments_depth:
-                    self.max_comments_depth_reached = True
+                if int(comment["depth"]) > self.__max_comments_depth:
                     continue
-                elif int(comment["depth"]) == self.max_comments_depth:
-                    self.max_comments_depth_reached = True
                 
-                if int(comment["depth"]) <= self.max_comments_depth:
+                if int(comment["depth"]) <= self.__max_comments_depth:
                     if int(comment["depth"]) == 0:
-                        if self.posts_comments_counts[post_id]["total"] < self.max_comments_per_post and self.posts_comments_counts[post_id]["top"] < self.max_top_comments_per_post:
-                            await self.items_queue.put(comment)
-                            self.posts_comments_counts[post_id]["total"] += 1
-                            self.posts_comments_counts[post_id]["top"] += 1
+                        if self.__posts_comments_counts[post_id]["total"] < self.__max_comments_per_post and self.__posts_comments_counts[post_id]["top"] < self.__max_top_comments_per_post:
+                            await self.__items_queue.put(comment)
+                            self.__posts_comments_counts[post_id]["total"] += 1
+                            self.__posts_comments_counts[post_id]["top"] += 1
                     else:
-                        if self.posts_comments_counts[post_id]["total"] < self.max_comments_per_post:
-                            await self.items_queue.put(comment)
-                            self.posts_comments_counts[post_id]["total"] += 1
+                        if self.__posts_comments_counts[post_id]["total"] < self.__max_comments_per_post:
+                            await self.__items_queue.put(comment)
+                            self.__posts_comments_counts[post_id]["total"] += 1
             
             children_comments_elements = soup.select('#comment-children > faceplate-partial[slot="children"]')
             children_comments_urls_and_cursors: list[tuple[str]] = []
@@ -758,7 +757,7 @@ class Reddrix:
             
             
             for item in children_comments_urls_and_cursors:
-                more.append(asyncio.create_task(self.fetch_post(url=item[0], cursor=item[1], post_id=post_id)))
+                more.append(asyncio.create_task(self.__fetch_post(url=item[0], cursor=item[1], post_id=post_id)))
             
             # Simulating single-thread comment pages visits
             single_thread_children_els = soup.select('div.fold-more:not(.hidden) a.more-comments-link')
@@ -766,7 +765,7 @@ class Reddrix:
                 parent_comment = el.find_parent("shreddit-comment")
                 depth_offset_ = int(parent_comment["depth"])
                 children_url = "https://www.reddit.com" + unescape(el.get("href"))
-                more.append(asyncio.create_task(self.fetch_post(children_url, depth_offset=depth_offset_, post_id=post_id)))
+                more.append(asyncio.create_task(self.__fetch_post(children_url, depth_offset=depth_offset_, post_id=post_id)))
             
             
             # Simulating the automatic scroll more comments loading
@@ -775,7 +774,7 @@ class Reddrix:
                 cursor_el = automatic_more_comments_element.select_one('input[name="cursor"]')
                 cursor_val = cursor_el["value"]
                 automatic_more_comments_url = "https://www.reddit.com" + unescape(automatic_more_comments_element.get("src"))
-                more.append(asyncio.create_task(self.fetch_post(automatic_more_comments_url, cursor=cursor_val, post_id=post_id)))
+                more.append(asyncio.create_task(self.__fetch_post(automatic_more_comments_url, cursor=cursor_val, post_id=post_id)))
             
             # Simulating the manual more comments button if needed
             faceplate_partials_elements = soup.select('faceplate-partial.more-comments-partial[loading="action"]')
@@ -788,21 +787,21 @@ class Reddrix:
                 manual_more_comments_url = "https://www.reddit.com" + unescape(manual_more_comments_element.get("src"))
                 cursor_el = manual_more_comments_element.select_one('input[name="cursor"]')
                 cursor_val = cursor_el["value"]
-                more.append(asyncio.create_task(self.fetch_post(manual_more_comments_url, cursor=cursor_val, post_id=post_id)))
+                more.append(asyncio.create_task(self.__fetch_post(manual_more_comments_url, cursor=cursor_val, post_id=post_id)))
             
             # Waiting for all comments to finish for the post
             if more:
                 await asyncio.gather(*more)
 
-    async def fetch_collection(self, url: str) -> None:
+    async def __fetch_collection(self, url: str) -> None:
         """Fetches an entire collection (e.g. a sub, a profile, or a keyword_search page)."""
         if self.is_running:
             next_page_url = None
             fetched_posts_count = 0
             post_tasks = []
-            if self.mode != "keyword_search":
+            if self.__mode != "keyword_search":
                 while True:
-                    async with self.page_semaphore:
+                    async with self.__page_semaphore:
                         await asyncio.sleep(random.uniform(0.5, 2)) # Random jitter
                         page_data = await self.get(url if not next_page_url else next_page_url)
 
@@ -828,22 +827,22 @@ class Reddrix:
                         next_page_url = None
 
                     for post in posts:
-                        if fetched_posts_count >= self.max_posts_per_collection:
+                        if fetched_posts_count >= self.__max_posts_per_collection:
                             break
 
-                        if fetched_posts_count < self.max_posts_per_collection:
+                        if fetched_posts_count < self.__max_posts_per_collection:
                             post_url = "https://www.reddit.com" + post["permalink"]
-                            post_tasks.append(asyncio.create_task(self.fetch_post(post_url, initial_page=True)))
+                            post_tasks.append(asyncio.create_task(self.__fetch_post(post_url, initial_page=True)))
                             fetched_posts_count += 1
 
-                    if not next_page_url or fetched_posts_count >= self.max_posts_per_collection:
+                    if not next_page_url or fetched_posts_count >= self.__max_posts_per_collection:
                         break
 
                 if post_tasks:
                     await asyncio.gather(*post_tasks)
             else:
                 while True:
-                    async with self.page_semaphore:
+                    async with self.__page_semaphore:
                         await asyncio.sleep(random.uniform(0.5, 2)) # Random jitter
                         page_html: str = await self.get(url if not next_page_url else next_page_url)
 
@@ -869,16 +868,16 @@ class Reddrix:
 
                     posts = soup.select('a[data-testid="post-title"]')
                     for post in posts:
-                        if fetched_posts_count >= self.max_posts_per_collection:
+                        if fetched_posts_count >= self.__max_posts_per_collection:
                             break
 
-                        if fetched_posts_count < self.max_posts_per_collection:
+                        if fetched_posts_count < self.__max_posts_per_collection:
                             post_url = "https://www.reddit.com" + post.get("href")
-                            post_tasks.append(asyncio.create_task(self.fetch_post(post_url, initial_page=True)))
+                            post_tasks.append(asyncio.create_task(self.__fetch_post(post_url, initial_page=True)))
 
                             fetched_posts_count += 1
 
-                    if not next_page_url or fetched_posts_count >= self.max_posts_per_collection:
+                    if not next_page_url or fetched_posts_count >= self.__max_posts_per_collection:
                         break
 
                 if post_tasks:
@@ -891,48 +890,48 @@ class Reddrix:
             try:
                 await asyncio.gather(*tasks)
             except Exception as e:
-                await self.items_queue.put(e)
+                await self.__items_queue.put(e)
             else:
-                await self.items_queue.put("done")
+                await self.__items_queue.put("done")
 
-        if self.mode == "standard":
+        if self.__mode == "standard":
             # Subreddits
-            for url in self.subreddit_urls:
+            for url in self.__subreddit_urls:
                 initial_url = url
                 if "reddit.com" not in initial_url or "/r/" not in initial_url:
                     continue
 
-                params = {"t": self.time_frame}
+                params = {"t": self.__time_frame}
 
                 raw_sub_name = initial_url.split("/r/")[-1].split("/")[0]
                 final_url = f"https://www.reddit.com/r/{raw_sub_name}"
 
-                if self.sort != "default":
-                    final_url += f"/{self.sort}/"
+                if self.__sort != "default":
+                    final_url += f"/{self.__sort}/"
 
                 final_url += f"?{urlencode(params)}"
 
-                tasks.append(self.fetch_collection(final_url))
+                tasks.append(self.__fetch_collection(final_url))
 
             # Posts
-            for url in self.post_urls:
+            for url in self.__post_urls:
                 initial_url = url
                 if "reddit.com" not in initial_url or "/comments/" not in initial_url:
                     continue
 
                 final_url = initial_url.split("/comments/")[0] + "/comments/" + initial_url.split("/comments/")[-1].split("/")[0] + "/"
                 final_url = final_url + initial_url.split(final_url)[-1].split("/")[0]
-                tasks.append(self.fetch_post(final_url, initial_page=True))
+                tasks.append(self.__fetch_post(final_url, initial_page=True))
 
             # Profiles
-            for url in self.profile_urls:
+            for url in self.__profile_urls:
                 initial_url = url
                 if "reddit.com" not in initial_url or ("/u/" not in initial_url and "/user/" not in initial_url):
                     continue
 
                 params = {
-                    "sort": self.sort if self.sort != "default" else "",
-                    "t": self.time_frame
+                    "sort": self.__sort if self.__sort != "default" else "",
+                    "t": self.__time_frame
                 }
 
                 if "/u/" in initial_url:
@@ -940,19 +939,19 @@ class Reddrix:
                 elif "/user/" in initial_url:
                     final_url = initial_url.split("/user/")[0] + "/user/" + initial_url.split("/user/")[-1].split("/")[0] + f"/submitted/?{urlencode(params)}"
 
-                tasks.append(self.fetch_collection(final_url))
-        elif self.mode == "keyword_search":
+                tasks.append(self.__fetch_collection(final_url))
+        elif self.__mode == "keyword_search":
             final_url = ""
 
-            if self.query:
+            if self.__query:
                 params = {
-                    "q": self.query,
+                    "q": self.__query,
                     "type": "posts",
                     "sort": "relevance"
                 }
 
                 final_url = f"https://www.reddit.com/search/?{urlencode(params)}"
-                tasks.append(self.fetch_collection(final_url))
+                tasks.append(self.__fetch_collection(final_url))
 
 
         
@@ -961,7 +960,7 @@ class Reddrix:
 
         try:
             while True:
-                item: Tag = await self.items_queue.get()
+                item: Tag = await self.__items_queue.get()
 
                 if isinstance(item, Exception):
                     raise item
@@ -977,7 +976,7 @@ class Reddrix:
                     
                     results_count += 1
 
-                    if results_count > self.max_results:
+                    if results_count > self.__max_results:
                         break
                     else:
                         yield parsed_item
@@ -987,8 +986,9 @@ class Reddrix:
             self.is_running = False
             
             try:
-                await self.camoufox.__aexit__(None, None, None)
-                self.interaction_task.cancel()
-                runner.cancel()
+                await self.__camoufox.__aexit__(None, None, None)
+                self.__interaction_task.cancel()
             except (AttributeError, ValueError):
                 pass
+            
+            runner.cancel()

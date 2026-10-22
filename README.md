@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.7-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.8-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -38,39 +38,26 @@
 > [!TIP]
 > Reddrix works best with the `stealth=True` argument (see [below](#stealth-mode)) . This argument is the default argument, unless you choose to switch it off.
 
-> [!WARNING]
-> ## Virtual display (Linux only)
->
-> On Linux machines WITHOUT A SCREEN (servers, WSL, CI, Docker), the scraper needs
-> Xvfb to run a virtual display. Install it with your package manager:
-
-| Distro | Command |
-|---|---|
-| Debian / Ubuntu | `sudo apt update && sudo apt install -y xvfb` |
-| Fedora / RHEL / CentOS | `sudo dnf install -y xorg-x11-server-Xvfb` |
-| Arch | `sudo pacman -S xorg-server-xvfb` |
-| Alpine | `apk add xvfb` |
-
-Check that it's installed:
-
-```bash
-which Xvfb
-```
-
-**Docker:** add this to your Dockerfile:
-
-```dockerfile
-RUN apt-get update && apt-get install -y --no-install-recommends xvfb \
-    && rm -rf /var/lib/apt/lists/*
-```
-
-**macOS and Windows:** nothing to install. Xvfb is not needed, and Reddrix DOES NOT need a headful browser with macOS and Windows.
-
 ## Installation
 
 ```bash
 pip install -U reddrix
+```
+```bash
 reddrix install # Mandatory for installing the Camoufox browser.
+```
+
+**For Docker, ensure you include the following in the Dockerfile:**
+
+```dockerfile
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      unzip ca-certificates fonts-liberation curl \
+      libnss3 libnspr4 libatk1.0-0 libatk-bridge2.0-0 libcups2 \
+      libxkbcommon0 libxcomposite1 libxdamage1 libxfixes3 libxrandr2 \
+      libgbm1 libpango-1.0-0 libcairo2 libasound2 libxshmfence1 \
+ && apt-get clean \
+ && rm -rf /var/lib/apt/lists/*
 ```
 
 ## Quickstart
