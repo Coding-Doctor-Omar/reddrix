@@ -220,7 +220,7 @@ class Reddrix:
                 self.context = await self.browser.new_context()
                 self.page = await self.context.new_page()
                 
-                await self.page.goto(COOKIE_URL)
+                await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
@@ -319,7 +319,7 @@ class Reddrix:
                 self.context = await self.browser.new_context()
                 self.page = await self.context.new_page()
                 
-                await self.page.goto(COOKIE_URL)
+                await self.page.goto(COOKIE_URL, referer="https://www.google.com/")
                 login_btn = self.page.locator("#login-button")
                 
                 if self.stealth:
