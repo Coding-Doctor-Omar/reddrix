@@ -1,6 +1,10 @@
+## v1.2.6 (Oct. 22, 2026)
+
+1. Circumvent a new trivial Reddit anti-bot measure.
+
 ## v1.2.5 (Oct. 21, 2026)
 
-1. Add 15-second timeouts for both initialization and cookie refreshes when the steal mode is active.
+1. Add 15-second timeouts for both initialization and cookie refreshes when the stealth mode is active.
 
 ## v1.2.4 (Oct. 21, 2026)
 
