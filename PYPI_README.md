@@ -58,13 +58,6 @@ RUN apt-get update \
  && rm -rf /var/lib/apt/lists/*
 ```
 
-## Installation
-
-```bash
-pip install -U reddrix
-reddrix install # Mandatory for installing the Camoufox browser.
-```
-
 ## Quickstart
 
 **Using Async Context Manager:**
