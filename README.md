@@ -64,7 +64,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends xvfb \
     && rm -rf /var/lib/apt/lists/*
 ```
 
-**macOS and Windows:** nothing to install. Xvfb is not needed.
+**macOS and Windows:** nothing to install. Xvfb is not needed, and Reddrix DOES NOT need a headful browser with macOS and Windows.
 
 ## Installation
 
