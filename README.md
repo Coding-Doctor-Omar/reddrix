@@ -72,6 +72,7 @@ async def main():
     async with Reddrix(
         mode="standard",
         subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        sort="new",
         post_urls=[],
         profile_urls=[],
         include_comments=True,
