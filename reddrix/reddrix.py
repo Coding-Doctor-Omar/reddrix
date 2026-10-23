@@ -79,6 +79,41 @@ def auto_retry(max_attempts: int):
     return decorator
 
 class Reddrix:
+    """
+    An undetectable Reddit posts & comments scraper (does not rely on JSON endpoints).
+    
+    Args:
+        mode: The scraping mode to use (either "standard" or "keyword_search").
+        stealth: Stealth mode configuration.
+        max_results: The maximum total posts and comments to scrape.
+        max_posts_per_collection: The maximum posts to scrape per subreddit, profile, or keyword search.
+        sort: The posts sort option per collection.
+        subreddit_urls: The URLs for subreddits to scrape posts and/or comments from ("standard" mode only).
+        post_urls: The URLs for specific posts to scrape ("standard" mode only).
+        profile_urls: The URLs for specific profiles to scrape posts and/or comments from ("standard" mode only). Skips deleted profiles, banned profiles, and profiles that hide their content.
+        query: The search query to use for scraping posts and/or comments ("keyword_search" mode only).
+        include_comments: Whether to include comments.
+        max_comments_depth: The maximum depth of comments to scrape per post.
+        max_comments_per_post: The maximum comments to scrape per post.
+        max_top_comments_per_post: The maximum top-level comments to scrape per post.
+        proxies: A list of proxy URLs in the format 'scheme://user:pass@host:port'. Automatic rotation is supported.
+        verbose: Whether to print timestamped log messages (initialization, retries, etc.) to the console.
+    
+    Example:
+    ```python
+    async with Reddrix(
+        mode="standard",
+        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        include_comments=True,
+        max_results=500,
+        verbose=True
+    ) as reddrix:
+        async for item in reddrix.get_items():
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
+    ```
+    """
+    
+    
     def __init__(
         self,
         mode: Literal["standard", "keyword_search"]="standard",
@@ -123,6 +158,7 @@ class Reddrix:
         self.__max_top_comments_per_post = max_top_comments_per_post
         self.__seen_comment_ids = set()
         self.__posts_comments_counts = {}
+        self.results_count = 0
         
         self.__cookies = []
         self.__csrf_token: str | None = None
@@ -145,9 +181,13 @@ class Reddrix:
         self.__interaction_task: Task | None = None
     
     async def start(self):
+        """Initializes Reddrix"""
         return await self.__aenter__()
     
     async def stop(self):
+        """Closes Reddrix
+        
+        Raises NotInitializedError if Reddrix is used afterward."""
         await self.__aexit__(None, None, None)
     
     def new_proxy_url(self) -> str:
@@ -887,6 +927,15 @@ class Reddrix:
                     await asyncio.gather(*post_tasks)
     
     async def get_items(self) -> AsyncGenerator[dict, None]:
+        """Asynchronous iterator for streaming posts and comments. Each result is a Python dictionary with 24 keys.
+        
+        Example:
+        ```python
+        async for item in reddrix.get_items():
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
+        ```
+        """
+        
         tasks = []
 
         async def run_all_tasks():
@@ -959,7 +1008,6 @@ class Reddrix:
 
         
         runner = asyncio.create_task(run_all_tasks())
-        results_count = 0
 
         try:
             while True:
@@ -977,9 +1025,9 @@ class Reddrix:
                     if not parsed_item:
                         continue
                     
-                    results_count += 1
+                    self.results_count += 1
 
-                    if results_count > self.__max_results:
+                    if self.results_count > self.__max_results:
                         break
                     else:
                         yield parsed_item
