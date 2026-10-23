@@ -66,7 +66,7 @@ def auto_retry(max_attempts: int):
 
                         async with COOKIE_LOCK:
                             if current_time - scraper.cookies_last_accessed_at >= 15:
-                                await scraper.__refresh_cookies()
+                                await scraper.refresh_cookies()
 
                         await asyncio.sleep(min(2 ** attempt + random.uniform(0, 5), 60))
                     else:
@@ -337,7 +337,7 @@ class Reddrix:
         
         self.started = False
     
-    async def __refresh_cookies(self):
+    async def refresh_cookies(self):
         if self.cookie_renewal_in_progress:
             return
         
