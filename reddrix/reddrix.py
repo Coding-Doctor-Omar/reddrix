@@ -420,6 +420,9 @@ class Reddrix:
 
         data: Tag = raw # Redundant statement kept in place to keep the new code compatible with the old code.
         
+        if not data.get("permalink"):
+            return {}
+        
         if raw.name == "shreddit-post": # Posts
             submission_id = data["id"].split("_")[-1]
             submission_id_prefixed = data["id"]
