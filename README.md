@@ -148,7 +148,7 @@ import asyncio
 async def main():
     async with Reddrix() as reddrix:
         html_content = await reddrix.get(
-            url="https://www.reddit.com/search",
+            url="https://www.reddit.com/search/",
             params={"q": "how to scrape reddit"}
         ) # Only HTML/XML is supported
         
