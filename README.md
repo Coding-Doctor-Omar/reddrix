@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.9-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.10-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -71,24 +71,16 @@ import asyncio
 async def main():
     async with Reddrix(
         mode="standard",
-        subreddit_urls=[
-            "https://www.reddit.com/r/webscraping",
-            # URLs of specific subreddits to include when scraping posts and comments
-            # Add as many as you want
-        ],
-        profile_urls=[], # URLs of specific profiles to include when scraping posts and comments; add as many as you want. Only public data is scraped
-        post_urls=[], # URLs of specific posts to include in the scraping; add as many as you like
-        sort="new",
+        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        post_urls=[],
+        profile_urls=[],
         include_comments=True,
         max_results=500,
-        max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
-        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -112,11 +104,9 @@ async def main():
     )
     await reddrix.start()
     
-    scrape_count = 0
     async for item in reddrix.get_items():
         # item is a Python dictionary with 24 keys.
-        scrape_count += 1
-        print(scrape_count, item["submissionType"], item["submissionUrl"])
+        print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
     
     await reddrix.stop()
 
@@ -141,11 +131,9 @@ async def main():
         max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
-        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -159,7 +147,11 @@ import asyncio
 
 async def main():
     async with Reddrix() as reddrix:
-        html_content = await reddrix.get(url="https://www.reddit.com/search?q=how+to+scrape+reddit") # Only HTML/XML is supported
+        html_content = await reddrix.get(
+            url="https://www.reddit.com/search",
+            params={"q": "how to scrape reddit"}
+        ) # Only HTML/XML is supported
+        
         print(html_content)
 
 if __name__ == "__main__":
@@ -180,15 +172,11 @@ async def main():
         # Your normal arguments above ...,
         proxies=[
             "scheme://user:pass@hostname:port",
-            "scheme://user2:pass2@hostname2:port2",
+            "scheme2://user2:pass2@hostname2:port2",
             # Add as many as you want, and Reddrix automatically rotates between them...
         ]
     ) as reddrix:
-        scrape_count = 0
-        async for item in reddrix.get_items():
-            # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+        # Rest of the code as usual...
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -220,20 +208,10 @@ import asyncio
 
 async def main():
     async with Reddrix(
-        mode="standard",
-        stealth=True, # Can also be set to False or "adaptive"
-        subreddit_urls=["https://www.reddit.com/r/webscraping"],
-        sort="new",
-        include_comments=True,
-        max_results=500,
-        max_posts_per_collection=500,
-        verbose=True
+        stealth=True, # Default is True, but can also be set to False or "adaptive"
+        # Rest of the arguments as usual...
     ) as reddrix:
-        scrape_count = 0
-        async for item in reddrix.get_items():
-            # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+        # Rest of the code as usual
 
 if __name__ == "__main__":
     asyncio.run(main())

@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.9-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.10-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -69,24 +69,16 @@ import asyncio
 async def main():
     async with Reddrix(
         mode="standard",
-        subreddit_urls=[
-            "https://www.reddit.com/r/webscraping",
-            # URLs of specific subreddits to include when scraping posts and comments
-            # Add as many as you want
-        ],
-        profile_urls=[], # URLs of specific profiles to include when scraping posts and comments; add as many as you want. Only public data is scraped
-        post_urls=[], # URLs of specific posts to include in the scraping; add as many as you like
-        sort="new",
+        subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        post_urls=[],
+        profile_urls=[],
         include_comments=True,
         max_results=500,
-        max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
-        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -110,11 +102,9 @@ async def main():
     )
     await reddrix.start()
     
-    scrape_count = 0
     async for item in reddrix.get_items():
         # item is a Python dictionary with 24 keys.
-        scrape_count += 1
-        print(scrape_count, item["submissionType"], item["submissionUrl"])
+        print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
     
     await reddrix.stop()
 
@@ -139,11 +129,9 @@ async def main():
         max_posts_per_collection=500,
         verbose=True
     ) as reddrix:
-        scrape_count = 0
         async for item in reddrix.get_items():
             # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+            print(reddrix.results_count, item["submissionType"], item["submissionUrl"])
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -157,7 +145,11 @@ import asyncio
 
 async def main():
     async with Reddrix() as reddrix:
-        html_content = await reddrix.get(url="https://www.reddit.com/search?q=how+to+scrape+reddit") # Only HTML/XML is supported
+        html_content = await reddrix.get(
+            url="https://www.reddit.com/search",
+            params={"q": "how to scrape reddit"}
+        ) # Only HTML/XML is supported
+        
         print(html_content)
 
 if __name__ == "__main__":
@@ -178,25 +170,33 @@ async def main():
         # Your normal arguments above ...,
         proxies=[
             "scheme://user:pass@hostname:port",
-            "scheme://user2:pass2@hostname2:port2",
+            "scheme2://user2:pass2@hostname2:port2",
             # Add as many as you want, and Reddrix automatically rotates between them...
         ]
     ) as reddrix:
-        scrape_count = 0
-        async for item in reddrix.get_items():
-            # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+        # Rest of the code as usual...
 
 if __name__ == "__main__":
     asyncio.run(main())
 ```
 
-**Stealth Mode:**
+## Stealth Mode
 
-By default, `stealth` is set to `adaptive`, which means Reddrix will auto-activate it only when scraping comments. To explicitly make it active all times, set it to `True`. When this mode is active, Reddrix will send the same internal API requests it sends with the wreq client but directly from within the Camoufox browser context using JavaScript fetch. While these requests are being fired in the background, Reddrix will make human-like, random mouse hovering in the page. The key **advantage** of this strategy is that it is much more undetectable because it avoids the fingerprint drift that occurs when harvesting cookies from a browser and using them in another HTTP client. Also, the majority of the scraping speed is preserved because the browser isn't really waiting for navigation or clicking elements aside from the random mouse movements it is doing in the home page. The **disadvantage** is that the stealth mode is resource-heavy.
+The stealth mode has 3 options: `True`, `False`, and `adaptive`.
 
-To excplicitly disable this mode, set `stealth` to `False`. This way, Camoufox will only be used as a cookie harvester, while wreq will use these cookies to make all the HTTP requests. The **advantage** is that this setup is much less resource-intensive, while the **disadvantage** is that it gets detected quickly when scraping lots of comments.
+**Why is it needed?**
+
+Reddrix no longer relies on Reddit's legacy JSON endpoints, since these endpoints are now behind login walls. Instead, it scrapes New Reddit's HTML and internal API endpoints, and these are protected by Cloudflare and reCaptcha Enterprise.
+
+**How It Works:**
+
+When stealth is set to `True` (the default option), Reddrix will open Camoufox, navigate to an empty sub page to harvest cookies, then will start scraping by sending direct HTTP requests to Reddit's internal API endpoints from within the same Camoufox browser context using JavaScript fetch (no navigation, no clicking). While firing these requests, Reddrix will initialize randomized mouse movements with random delays and human-like patterns in the loaded page. This approach avoids the fingerprint drift between the browser and the wreq client by sending the HTTP requests from the same browser. Additionally, the random mouse movements constantly generate reCaptcha Enterprise clearances, ensuring the session remains trusted and lasts a long time while still preserving most of the scraping speed.
+
+**Disadvantage:**
+
+The disadvantage is heavy resource usage.
+
+*If this option is set to `adaptive`, it will only be activated when `include_comments` is set to `True`, since comments are often more protected by anti-bot measures.*
 
 Example Code:
 
@@ -206,20 +206,10 @@ import asyncio
 
 async def main():
     async with Reddrix(
-        mode="standard",
-        stealth=True, # Can also be set to False or "adaptive"
-        subreddit_urls=["https://www.reddit.com/r/webscraping"],
-        sort="new",
-        include_comments=True,
-        max_results=500,
-        max_posts_per_collection=500,
-        verbose=True
+        stealth=True, # Default is True, but can also be set to False or "adaptive"
+        # Rest of the arguments as usual...
     ) as reddrix:
-        scrape_count = 0
-        async for item in reddrix.get_items():
-            # item is a Python dictionary with 24 keys.
-            scrape_count += 1
-            print(scrape_count, item["submissionType"], item["submissionUrl"])
+        # Rest of the code as usual
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -332,19 +322,20 @@ If you use the preset scraping setup from `async for item reddrix.get_items()`, 
 ## Reddrix Arguments
 
 1. `mode` (string) &mdash; Either `standard` or `keyword_search`. Default is `standard`.
-2. `max_results` (integer) &mdash; The maximum total number of items (posts and comments combined) to return across all sources. Default is `999999`.
-3. `max_posts_per_collection` (integer) &mdash; The maximum number of posts to scrape from each collection. A collection is a single subreddit, profile, keyword search, or domain. Default is `999999`.
-4. `sort` (string) &mdash; One of `default`, `new`, `hot`, `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year`. Applies to subreddits and profiles. This option is ignored in `keyword_search` mode, which always uses Reddit's relevance sorting. Default is `default`.
-5. `subreddit_urls` (list of strings) &mdash; Subreddit URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping"]`. Used in `standard` mode only. URLs that are not valid subreddit URLs are skipped. Default is `[]`.
-6. `post_urls` (list of strings) &mdash; Specific post URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping/comments/abc123/post_title/"]`. Used in `standard` mode only. URLs that are not valid post URLs are skipped. Default is `[]`.
-7. `profile_urls` (list of strings) &mdash; User profile URLs to scrape the submitted posts of, e.g. `["https://www.reddit.com/user/username"]`. Both `/user/` and `/u/` URLs are supported. Used in `standard` mode only. URLs that are not valid profile URLs, or those of profiles that are deleted, banned, or hiding their content, are skipped. Default is `[]`.
-8.  `query` (string) &mdash; The search keywords to look up site-wide on Reddit. Used in `keyword_search` mode only. Default is `None`.
-9.  `include_comments` (boolean) &mdash; Whether to scrape the comments of each post in addition to the post itself. Comments are returned as separate items with `submissionType` set to `comment`. Default is `False`.
-10. `max_comments_depth` (integer) &mdash; The maximum comment depth to scrape. Top-level comments have a depth of `0`, their replies have a depth of `1`, and so on. Only applies if `include_comments` is `True`. Default is `999999`.
-11. `max_comments_per_post` (integer) &mdash; The maximum total number of comments (top-level comments and replies) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
-12. `max_top_comments_per_post` (integer) &mdash; The maximum number of top-level comments (depth `0`) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
-13. `proxies` (list of strings) &mdash; A list of proxy URLs in the format `scheme://user:pass@hostname:port`. Reddrix rotates through them automatically, picking an unused proxy first and reusing proxies only after the whole list has been used. Default is `[]` (no proxy).
-14. `verbose` (boolean) &mdash; Whether to print timestamped log messages (initialization, retries, etc.) to the console. Default is `False`.
+2. `stealth` (string or boolean) &mdash; Whether to use the stealth mode (explained above) in scraping. Default is `True`.
+3. `max_results` (integer) &mdash; The maximum total number of items (posts and comments combined) to return across all sources. Default is `999999`.
+4. `max_posts_per_collection` (integer) &mdash; The maximum number of posts to scrape from each collection. A collection is a single subreddit, profile, keyword search, or domain. Default is `999999`.
+5. `sort` (string) &mdash; One of `default`, `new`, `hot`, `top_all_time`, `top_past_hour`, `top_today`, `top_past_week`, `top_past_month`, and `top_past_year`. Applies to subreddits and profiles. This option is ignored in `keyword_search` mode, which always uses Reddit's relevance sorting. Default is `default`.
+6. `subreddit_urls` (list of strings) &mdash; Subreddit URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping"]`. Used in `standard` mode only. URLs that are not valid subreddit URLs are skipped. Default is `[]`.
+7. `post_urls` (list of strings) &mdash; Specific post URLs to scrape, e.g. `["https://www.reddit.com/r/webscraping/comments/abc123/post_title/"]`. Used in `standard` mode only. URLs that are not valid post URLs are skipped. Default is `[]`.
+8. `profile_urls` (list of strings) &mdash; User profile URLs to scrape the submitted posts of, e.g. `["https://www.reddit.com/user/username"]`. Both `/user/` and `/u/` URLs are supported. Used in `standard` mode only. URLs that are not valid profile URLs, or those of profiles that are deleted, banned, or hiding their content, are skipped. Default is `[]`.
+9.  `query` (string) &mdash; The search keywords to look up site-wide on Reddit. Used in `keyword_search` mode only. Default is `None`.
+10. `include_comments` (boolean) &mdash; Whether to scrape the comments of each post in addition to the post itself. Comments are returned as separate items with `submissionType` set to `comment`. Default is `False`.
+11. `max_comments_depth` (integer) &mdash; The maximum comment depth to scrape. Top-level comments have a depth of `0`, their replies have a depth of `1`, and so on. Only applies if `include_comments` is `True`. Default is `999999`.
+12. `max_comments_per_post` (integer) &mdash; The maximum total number of comments (top-level comments and replies) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
+13. `max_top_comments_per_post` (integer) &mdash; The maximum number of top-level comments (depth `0`) to scrape per post. Only applies if `include_comments` is `True`. Default is `999999`.
+14. `proxies` (list of strings) &mdash; A list of proxy URLs in the format `scheme://user:pass@hostname:port`. Reddrix rotates through them automatically, picking an unused proxy first and reusing proxies only after the whole list has been used. Default is `[]` (no proxy).
+15. `verbose` (boolean) &mdash; Whether to print timestamped log messages (initialization, retries, etc.) to the console. Default is `False`.
 
 ## Star History
 
