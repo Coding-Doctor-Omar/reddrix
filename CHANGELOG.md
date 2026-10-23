@@ -1,3 +1,8 @@
+## v1.2.10 (Oct. 23, 2026)
+
+1. Improve documentation.
+2. Add a public `results_count` attribute for more convenient results count tracking.
+
 ## v1.2.9 (Oct. 23, 2026)
 
 1. Minor bug fixes
