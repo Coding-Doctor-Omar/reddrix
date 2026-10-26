@@ -285,7 +285,7 @@ class Reddrix:
                     
                     for c in self.cookies:
                         if c["name"] == "csrf_token":
-                            self.csrf_token = c["value"]
+                            self.__csrf_token = c["value"]
                     
                     self.__interaction_task = asyncio.create_task(self.__interact_naturally_with_reddit())
                 else:
@@ -398,7 +398,7 @@ class Reddrix:
                     
                     for c in self.cookies:
                         if c["name"] == "csrf_token":
-                            self.csrf_token = c["value"]
+                            self.__csrf_token = c["value"]
                 else:
                     await wiki_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.__cookies = await self.__context.cookies()
