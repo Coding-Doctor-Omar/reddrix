@@ -1,3 +1,7 @@
+## v1.2.12 (Oct. 26, 2026)
+
+1. Minor bug fix.
+
 ## v1.2.11 (Oct. 23, 2026)
 
 1. Minor bug fix.
