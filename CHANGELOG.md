@@ -1,3 +1,7 @@
+## v1.2.14 (Oct. 29, 2026)
+
+1. Minor bug fix.
+
 ## v1.2.13 (Oct. 29, 2026)
 
 1. Stealth enhancement.
