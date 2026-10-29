@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.12-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.13-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -194,6 +194,8 @@ Reddrix no longer relies on Reddit's legacy JSON endpoints, since these endpoint
 **How It Works:**
 
 When stealth is set to `True` (the default option), Reddrix will open Camoufox, navigate to an empty sub page to harvest cookies, then will start scraping by sending direct HTTP requests to Reddit's internal API endpoints from within the same Camoufox browser context using JavaScript fetch (no navigation, no clicking). While firing these requests, Reddrix will initialize randomized mouse movements with random delays and human-like patterns in the loaded page. This approach avoids the fingerprint drift between the browser and the wreq client by sending the HTTP requests from the same browser. Additionally, the random mouse movements constantly generate reCaptcha Enterprise clearances, ensuring the session remains trusted and lasts a long time while still preserving most of the scraping speed.
+
+Without the stealth mode, Reddrix will still work, but there will be a slightly higher chance of getting detected.
 
 **Disadvantage:**
 

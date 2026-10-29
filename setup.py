@@ -5,7 +5,7 @@ with open("PYPI_README.md", mode="r", encoding="utf-8") as f:
 
 setup(
     name="reddrix",
-    version="1.2.12",
+    version="1.2.13",
     packages=find_packages(),
     install_requires=["camoufox[geoip]", "whiskeysour", "wreq"],
     entry_points={
