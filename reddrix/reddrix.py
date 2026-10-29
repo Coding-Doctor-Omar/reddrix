@@ -261,9 +261,11 @@ class Reddrix:
                 self.__context = await self.__browser.new_context()
                 self.__page = await self.__context.new_page()
                 
-                await self.__page.goto(COOKIE_URL, referer="https://www.google.com/")
+                await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go"}); anchor.click();}'
+                js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
+                await self.__page.evaluate(js_expression)
                 
-                # Fast block detection for custom Reddit blocking
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
                 except PlaywrightTimeoutError:
@@ -276,20 +278,19 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                wiki_btn = self.__page.locator('[noun="wiki"] > a')
+                post_link = self.__page.locator('a[slot="full-post-link"]')
                 
                 if self.__stealth:
-                    await wiki_btn.hover(timeout=20000)
-                    await asyncio.sleep(1.5)
-                    self.cookies = await self.__context.cookies()
+                    await post_link.first.hover(timeout=15000)
+                    self.__cookies = await self.__context.cookies()
                     
-                    for c in self.cookies:
+                    for c in self.__cookies:
                         if c["name"] == "csrf_token":
                             self.__csrf_token = c["value"]
                     
                     self.__interaction_task = asyncio.create_task(self.__interact_naturally_with_reddit())
                 else:
-                    await wiki_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
+                    await post_link.first.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.__cookies = await self.__context.cookies()
                     self.__fill_cookie_jar()
                     self.__client = Client(
@@ -374,9 +375,11 @@ class Reddrix:
                 self.__context = await self.__browser.new_context()
                 self.__page = await self.__context.new_page()
                 
-                await self.__page.goto(COOKIE_URL, referer="https://www.google.com/")
+                await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go"}); anchor.click();}'
+                js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
+                await self.__page.evaluate(js_expression)
                 
-                # Fast block detection for custom Reddit blocking
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
                 except PlaywrightTimeoutError:
@@ -389,18 +392,18 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                wiki_btn = self.__page.locator('[noun="wiki"] > a')
+                post_link = self.__page.locator('a[slot="full-post-link"]')
                 
                 if self.__stealth:
-                    await wiki_btn.hover(timeout=20000)
-                    await asyncio.sleep(1.5)
-                    self.cookies = await self.__context.cookies()
+                    await post_link.first.hover(timeout=15000)
+                    self.__cookies = await self.__context.cookies()
                     
-                    for c in self.cookies:
+                    for c in self.__cookies:
                         if c["name"] == "csrf_token":
                             self.__csrf_token = c["value"]
+                    
                 else:
-                    await wiki_btn.hover(timeout=15000) # Ensure ALL cookies are harvested
+                    await post_link.first.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.__cookies = await self.__context.cookies()
                     self.__fill_cookie_jar()
                     self.__client = Client(
