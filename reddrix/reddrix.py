@@ -255,16 +255,18 @@ class Reddrix:
                         "username": parsed_url.username,
                         "password": parsed_url.password
                     } if proxy_url else None,
-                    geoip=True if proxy_url else False
+                    geoip=True
                 )
                 self.__browser = await self.__camoufox.__aenter__()
                 self.__context = await self.__browser.new_context()
                 self.__page = await self.__context.new_page()
                 
                 await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
-                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go"}); anchor.click();}'
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); const parent = document.querySelector("form[action]"); parent.appendChild(anchor);}'
                 js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
                 await self.__page.evaluate(js_expression)
+                navigation_el = await self.__page.wait_for_selector("a#custom", timeout=5000)
+                await navigation_el.click(timeout=5000)
                 
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
@@ -303,7 +305,7 @@ class Reddrix:
                     await self.__camoufox.__aexit__(None, None, None)
                 
                 self.started = True
-            except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation):
+            except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation) as e:
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
                     await self.__camoufox.__aexit__(None, None, None)
@@ -369,16 +371,18 @@ class Reddrix:
                         "username": parsed_url.username,
                         "password": parsed_url.password
                     } if proxy_url else None,
-                    geoip=True if proxy_url else False
+                    geoip=True
                 )
                 self.__browser = await self.__camoufox.__aenter__()
                 self.__context = await self.__browser.new_context()
                 self.__page = await self.__context.new_page()
                 
                 await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
-                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go"}); anchor.click();}'
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); const parent = document.querySelector("form[action]"); parent.appendChild(anchor);}'
                 js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
                 await self.__page.evaluate(js_expression)
+                navigation_el = await self.__page.wait_for_selector("a#custom", timeout=5000)
+                await navigation_el.click(timeout=5000)
                 
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
