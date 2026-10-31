@@ -280,10 +280,9 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                post_link = self.__page.locator('shreddit-post')
+                await self.page.wait_for_selector("#login-button", timeout=15000)
                 
                 if self.__stealth:
-                    await post_link.first.hover(timeout=15000)
                     self.__cookies = await self.__context.cookies()
                     
                     for c in self.__cookies:
@@ -292,7 +291,6 @@ class Reddrix:
                     
                     self.__interaction_task = asyncio.create_task(self.__interact_naturally_with_reddit())
                 else:
-                    await post_link.first.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.__cookies = await self.__context.cookies()
                     self.__fill_cookie_jar()
                     self.__client = Client(
@@ -397,10 +395,9 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                post_link = self.__page.locator('shreddit-post')
+                await self.page.wait_for_selector("#login-button", timeout=15000)
                 
                 if self.__stealth:
-                    await post_link.first.hover(timeout=15000)
                     self.__cookies = await self.__context.cookies()
                     
                     for c in self.__cookies:
@@ -408,7 +405,6 @@ class Reddrix:
                             self.__csrf_token = c["value"]
                     
                 else:
-                    await post_link.first.hover(timeout=15000) # Ensure ALL cookies are harvested
                     self.__cookies = await self.__context.cookies()
                     self.__fill_cookie_jar()
                     self.__client = Client(
