@@ -1,3 +1,7 @@
+## v1.2.17 (Oct. 31, 2026)
+
+1. Make the stealth mode disabled by default, since it's overkill for Reddit's current anti-bot protection.
+
 ## v1.2.16 (Oct. 31, 2026)
 
 1. Bug fix.
