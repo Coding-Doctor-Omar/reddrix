@@ -247,7 +247,7 @@ class Reddrix:
                 parsed_url = urlparse(proxy_url)
                 self.__camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
-                    headless="virtual" if shutil.which("Xvfb") is not None else False,
+                    headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
                     fingerprint_preset=True,
                     proxy={
