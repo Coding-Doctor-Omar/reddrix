@@ -36,7 +36,7 @@
 </p>
 
 > [!TIP]
-> Getting blocked when using Reddrix? Consider providing it with a list of [proxies](#proxies) and/or enable the [stealth mode](#stealth-mode).
+> Getting blocked when using Reddrix? Consider providing it with a list of [proxies](#proxies) and/or enabling the [stealth mode](#stealth-mode).
 
 ## Installation
 
