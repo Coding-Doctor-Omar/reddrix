@@ -262,11 +262,9 @@ class Reddrix:
                 self.__page = await self.__context.new_page()
                 
                 await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
-                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); const parent = document.querySelector("form[action]"); parent.appendChild(anchor);}'
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); anchor.click();}'
                 js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
                 await self.__page.evaluate(js_expression)
-                navigation_el = await self.__page.wait_for_selector("a#custom", timeout=5000)
-                await navigation_el.click(timeout=5000)
                 
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
@@ -376,11 +374,9 @@ class Reddrix:
                 self.__page = await self.__context.new_page()
                 
                 await self.__page.goto("https://www.google.com/", wait_until="domcontentloaded")
-                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); const parent = document.querySelector("form[action]"); parent.appendChild(anchor);}'
+                js_expression = r'() => {let anchor = Object.assign(document.createElement("a"), {id: "custom", href: "COOKIE_URL", textContent: "Go", style: {cssText: "display:inline-block;padding:8px"}}); anchor.click();}'
                 js_expression = js_expression.replace("COOKIE_URL", COOKIE_URL)
                 await self.__page.evaluate(js_expression)
-                navigation_el = await self.__page.wait_for_selector("a#custom", timeout=5000)
-                await navigation_el.click(timeout=5000)
                 
                 try:
                     await self.__page.wait_for_url(lambda url: "solution" in url, timeout=1500)
