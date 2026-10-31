@@ -117,7 +117,7 @@ class Reddrix:
     def __init__(
         self,
         mode: Literal["standard", "keyword_search"]="standard",
-        stealth: Literal["adaptive", True, False]=True,
+        stealth: Literal["adaptive", True, False]=False,
         max_results: int=999999,
         max_posts_per_collection: int=999999,
         sort: Literal["default", "new", "hot", "top_all_time", "top_past_hour", "top_today", "top_past_week", "top_past_month", "top_past_year"]="default",
@@ -304,7 +304,6 @@ class Reddrix:
                 
                 self.started = True
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation) as e:
-                self.log(e)
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
                     await self.__camoufox.__aexit__(None, None, None)
