@@ -280,7 +280,7 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                await self.page.wait_for_selector("#login-button", timeout=15000)
+                await self.__page.wait_for_selector("#login-button", timeout=15000)
                 
                 if self.__stealth:
                     self.__cookies = await self.__context.cookies()
@@ -395,7 +395,7 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                await self.page.wait_for_selector("#login-button", timeout=15000)
+                await self.__page.wait_for_selector("#login-button", timeout=15000)
                 
                 if self.__stealth:
                     self.__cookies = await self.__context.cookies()
