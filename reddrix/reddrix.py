@@ -247,7 +247,7 @@ class Reddrix:
                 parsed_url = urlparse(proxy_url)
                 self.__camoufox = AsyncCamoufox(
                     os=CAMOUFOX_PLATFORMS[system().lower()],
-                    headless="virtual" if shutil.which("Xvfb") is not None else True,
+                    headless="virtual" if shutil.which("Xvfb") is not None else False,
                     humanize=True,
                     fingerprint_preset=True,
                     proxy={
@@ -280,7 +280,7 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                post_link = self.__page.locator('a[slot="full-post-link"]')
+                post_link = self.__page.locator('shreddit-post')
                 
                 if self.__stealth:
                     await post_link.first.hover(timeout=15000)
@@ -306,6 +306,7 @@ class Reddrix:
                 
                 self.started = True
             except (ValueError, PlaywrightTimeoutError, TimeoutError, Error, UnknownIPLocation) as e:
+                self.log(e)
                 self.log(f"INITIALIZATION ATTEMPT {attempt}/{MAX_COOKIE_RETRIES} FAILED. RETRYING...", level="error")
                 try:
                     await self.__camoufox.__aexit__(None, None, None)
@@ -396,7 +397,7 @@ class Reddrix:
                 elif "prove your humanity" in (await self.__page.content()).lower():
                     raise ValueError
                 
-                post_link = self.__page.locator('a[slot="full-post-link"]')
+                post_link = self.__page.locator('shreddit-post')
                 
                 if self.__stealth:
                     await post_link.first.hover(timeout=15000)
