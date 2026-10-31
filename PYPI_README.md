@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.16-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.17-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -34,7 +34,7 @@
 </p>
 
 > [!TIP]
-> Reddrix works best with the `stealth=True` argument (see below). This argument is the default argument, unless you choose to switch it off.
+> Getting blocked when using Reddrix? Consider providing it with a list of [proxies](#proxies) and/or enable the [stealth mode](#stealth-mode).
 
 ## Installation
 
@@ -70,6 +70,7 @@ async def main():
     async with Reddrix(
         mode="standard",
         subreddit_urls=["https://www.reddit.com/r/webscraping"],
+        sort="new",
         post_urls=[],
         profile_urls=[],
         include_comments=True,
@@ -159,7 +160,7 @@ if __name__ == "__main__":
 > [!TIP]
 > Random request jittering does not apply when using the GET and POST methods directly, so use your own jittering in this case, or just use the preset scraping setup shown above.
 
-**Using Reddrix with Proxies:**
+## Proxies
 
 ```python
 from reddrix import Reddrix
@@ -182,7 +183,7 @@ if __name__ == "__main__":
 
 ## Stealth Mode
 
-The stealth mode has 3 options: `True`, `False`, and `adaptive`.
+The stealth mode has 3 options: `True`, `False`, and `adaptive`. It is set to `False` (disabled) by default.
 
 **Why is it needed?**
 
@@ -190,13 +191,15 @@ Reddrix no longer relies on Reddit's legacy JSON endpoints, since these endpoint
 
 **How It Works:**
 
-When stealth is set to `True` (the default option), Reddrix will open Camoufox, navigate to an empty sub page to harvest cookies, then will start scraping by sending direct HTTP requests to Reddit's internal API endpoints from within the same Camoufox browser context using JavaScript fetch (no navigation, no clicking). While firing these requests, Reddrix will initialize randomized mouse movements with random delays and human-like patterns in the loaded page. This approach avoids the fingerprint drift between the browser and the wreq client by sending the HTTP requests from the same browser. Additionally, the random mouse movements constantly generate reCaptcha Enterprise clearances, ensuring the session remains trusted and lasts a long time while still preserving most of the scraping speed.
+When stealth is set to `True`, Reddrix will open Camoufox, navigate to an empty sub page to harvest cookies, then will start scraping by sending direct HTTP requests to Reddit's internal API endpoints from within the same Camoufox browser context using JavaScript fetch (no navigation, no clicking).
+
+While firing these requests, Reddrix will initialize randomized mouse movements with random delays and human-like patterns in the loaded page. This approach avoids the fingerprint drift between the browser and the wreq client by sending the HTTP requests from the same browser. Additionally, the random mouse movements constantly generate reCaptcha Enterprise clearances, ensuring the session remains trusted and lasts a long time while still preserving most of the scraping speed.
 
 Without the stealth mode, Reddrix will still work, but there will be a slightly higher chance of getting detected.
 
 **Disadvantage:**
 
-The disadvantage is heavy resource usage.
+The disadvantage of stealth mode is heavy resource usage.
 
 *If this option is set to `adaptive`, it will only be activated when `include_comments` is set to `True`, since comments are often more protected by anti-bot measures.*
 
@@ -208,7 +211,7 @@ import asyncio
 
 async def main():
     async with Reddrix(
-        stealth=True, # Default is True, but can also be set to False or "adaptive"
+        stealth=True, # It is disabled by default, unless you enable it.
         # Rest of the arguments as usual...
     ) as reddrix:
         # Rest of the code as usual
