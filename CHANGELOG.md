@@ -1,3 +1,7 @@
+## v1.2.19 (Nov. 6, 2026)
+
+1. Remove fingerprint presets to avoid having to use canvas noise.
+
 ## v1.2.18 (Oct. 31, 2026)
 
 1. Minor bug fix.

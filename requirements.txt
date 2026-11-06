@@ -1,7 +1,7 @@
 ansicon==1.89.0
 anyio==4.15.1
 blessed==1.50.0
-camoufox==0.5.8
+camoufox==0.5.9
 certifi==2026.7.22
 cffi==2.1.1
 charset-normalizer==3.5.2
@@ -43,6 +43,7 @@ pywin32-ctypes==0.2.3
 PyYAML==6.0.3
 readchar==4.2.2
 readme_renderer==46.0
+reddrix==1.2.18
 requests==2.34.2
 requests-toolbelt==1.0.0
 rfc3986==2.0.0

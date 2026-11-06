@@ -249,7 +249,6 @@ class Reddrix:
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
-                    fingerprint_preset=True,
                     proxy={
                         "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
                         "username": parsed_url.username,
@@ -361,7 +360,6 @@ class Reddrix:
                     os=CAMOUFOX_PLATFORMS[system().lower()],
                     headless="virtual" if shutil.which("Xvfb") is not None else True,
                     humanize=True,
-                    fingerprint_preset=True,
                     proxy={
                         "server": f"{parsed_url.scheme}://{parsed_url.hostname}:{parsed_url.port}",
                         "username": parsed_url.username,
