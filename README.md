@@ -8,7 +8,7 @@
 
 <p align="center" class="badges">
     <a href="https://pypi.org/project/reddrix/">
-        <img src="https://img.shields.io/badge/pypi-v1.2.19-orange.svg" alt="pypi package logo">
+        <img src="https://img.shields.io/badge/pypi-v1.2.20-orange.svg" alt="pypi package logo">
     </a>
     <a href="https://pypi.org/project/reddrix/">
         <img src="https://img.shields.io/badge/python-3.10%2B-blue.svg" alt="python versions badge">
@@ -37,6 +37,21 @@
 
 > [!TIP]
 > Getting blocked when using Reddrix? Consider providing it with a list of [proxies](#proxies) and/or enabling the [stealth mode](#stealth-mode).
+>
+
+## Sponsors
+
+<details open>
+    <summary>Expand/Collapse All</summary>
+    <h4>ProxyBase</h4>
+    <img src="./images/proxybase-banner-pixel-wordmark.png" width="300">
+    <p>• Residential proxies at $0.75/GB and datacenter proxies at $0.20/GB. HTTP and SOCKS5 connections with a prepaid balance that never expires.</p>
+    <p>• Proxies come straight from real users, providing residential ISP exit IPs for your connections.</p>
+    <p>• Choose between rotating IPs for scraping or sticky sessions for account management.</p>
+    <p>• Choose your country with residential or datacenter proxies.</p>
+    <p>• Specifically tested and verified to work with Reddrix.</p>
+    <p>👉 <a href="https://client.proxybase.org/signup?ref=reddrix">Get started with ProxyBase</a></p>
+</details>
 
 ## Installation
 
