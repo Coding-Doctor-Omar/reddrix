@@ -1,3 +1,7 @@
+## v1.2.20 (Nov. 12, 2026)
+
+1. Fix a minor stealth mode bug that occasionally caused camoufox to keep running in the background after the run is finished.
+
 ## v1.2.19 (Nov. 6, 2026)
 
 1. Remove fingerprint presets to avoid having to use canvas noise.

@@ -58,7 +58,10 @@ def auto_retry(max_attempts: int):
             for attempt in range(1, max_attempts + 1):
                 current_time = time.time()
                 try:
-                    result = await func(*args, **kwargs)
+                    if scraper.is_running:
+                        result = await func(*args, **kwargs)
+                    else:
+                        return
                 except (AntiBotBlockError, TargetClosedError, asyncio.CancelledError):
                     if scraper.is_running:
                         if attempt == max_attempts:
@@ -323,6 +326,7 @@ class Reddrix:
         return self
     
     async def __aexit__(self, exc_type, exc, tb):
+        self.is_running = False
         try:
             await self.__camoufox.__aexit__(None, None, None)
             self.__client.close()
