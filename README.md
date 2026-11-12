@@ -43,7 +43,7 @@
 
 <details open>
     <summary>Expand/Collapse All</summary>
-    <h4>ProxyBase</h4>
+    <h3>ProxyBase</h3>
     <img src="./images/proxybase-banner-pixel-wordmark.png" width="300">
     <p>• Residential proxies at $0.75/GB and datacenter proxies at $0.20/GB. HTTP and SOCKS5 connections with a prepaid balance that never expires.</p>
     <p>• Proxies come straight from real users, providing residential ISP exit IPs for your connections.</p>
