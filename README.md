@@ -39,9 +39,6 @@
 > Getting blocked when using Reddrix? Consider providing it with a list of [proxies](#proxies) and/or enabling the [stealth mode](#stealth-mode).
 >
 
-> [!WARNING]
-> Reddrix is temporarily down because one of its core dependencies, Camoufox, has been taken down from GitHub. This issue will hopefully be fixed soon.
-
 ## Sponsors
 
 <details open>
