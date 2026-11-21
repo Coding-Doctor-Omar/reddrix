@@ -44,13 +44,13 @@
 <details open>
     <summary>Expand/Collapse All</summary>
     <h3>ProxyBase</h3>
-    <img src="./images/proxybase-banner-pixel-wordmark.png" width="300">
+    <a href="https://proxybase.org/?ref=reddrix"><img src="./images/proxybase-banner-pixel-wordmark.png" width="300"></a>
     <p>• Residential proxies at $0.75/GB and datacenter proxies at $0.20/GB. HTTP and SOCKS5 connections with a prepaid balance that never expires.</p>
     <p>• Proxies come straight from real users, providing residential ISP exit IPs for your connections.</p>
     <p>• Choose between rotating IPs for scraping or sticky sessions for account management.</p>
     <p>• Choose your country with residential or datacenter proxies.</p>
     <p>• Specifically tested and verified to work with Reddrix.</p>
-    <p>👉 <a href="https://client.proxybase.org/signup?ref=reddrix">Get started with ProxyBase</a></p>
+    <p>👉 <a href="https://proxybase.org/?ref=reddrix">Get started with ProxyBase</a></p>
 </details>
 
 ## Installation
